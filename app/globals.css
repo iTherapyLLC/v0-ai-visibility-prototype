@@ -1,0 +1,282 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Updated to exact Featherstone Intelligence brand colors from PDF */
+  /* Vine Green #30594B, Harvest Gold #C5AA7D, Limestone White #FAFAF8, Charcoal Ink #2C2B28, Soft Gray #E8E6E2 */
+  --background: 98.04% 0.003 90; /* #FAFAF8 - Limestone White */
+  --foreground: 17.65% 0.008 60; /* #2C2B28 - Charcoal Ink (headings) */
+  --card: 91.37% 0.005 85; /* #E8E6E2 - Soft Gray (cards, dividers) */
+  --card-foreground: 23.53% 0.005 50; /* #3B3A37 - body text */
+  --popover: 100% 0 0;
+  --popover-foreground: 23.53% 0.005 50;
+  --primary: 34.51% 0.045 165; /* #30594B - Vine Green (primary buttons, accents) */
+  --primary-foreground: 98.04% 0.003 90;
+  --secondary: 91.37% 0.005 85; /* Soft Gray for secondary elements */
+  --secondary-foreground: 17.65% 0.008 60;
+  --muted: 96% 0.005 90;
+  --muted-foreground: 35.29% 0.003 50; /* #5A5A52 - quotes */
+  --accent: 70.59% 0.045 75; /* #C5AA7D - Harvest Gold (links, icons, hover states) */
+  --accent-foreground: 17.65% 0.008 60;
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: 91.37% 0.005 85; /* Soft Gray for borders */
+  --input: 91.37% 0.005 85;
+  --ring: 34.51% 0.045 165;
+  --chart-1: 34.51% 0.045 165; /* Vine Green */
+  --chart-2: 70.59% 0.045 75; /* Harvest Gold */
+  --chart-3: 45% 0.05 160; /* lighter green */
+  --chart-4: 60% 0.04 70; /* muted gold */
+  --chart-5: 40% 0.04 155; /* darker green */
+  --radius: 1rem; /* Updated to 16px card radius */
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: 15% 0.02 165;
+  --foreground: 95% 0.01 90;
+  --card: 18% 0.02 165;
+  --card-foreground: 95% 0.01 90;
+  --popover: 18% 0.02 165;
+  --popover-foreground: 95% 0.01 90;
+  --primary: 45% 0.05 165;
+  --primary-foreground: 98% 0.003 90;
+  --secondary: 25% 0.02 165;
+  --secondary-foreground: 95% 0.01 90;
+  --muted: 22% 0.02 165;
+  --muted-foreground: 60% 0.02 165;
+  --accent: 65% 0.04 75;
+  --accent-foreground: 17.65% 0.008 60;
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: 25% 0.02 165;
+  --input: 25% 0.02 165;
+  --ring: 45% 0.05 165;
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  /* Updated font configuration for Featherstone Intelligence typography */
+  --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display SC", "Playfair Display", Georgia, serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  /* Added smooth scroll behavior globally */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    /* Updated typography defaults: 18px base, 1.7 line-height, 40px paragraph spacing */
+    @apply bg-background text-card-foreground text-lg leading-relaxed;
+  }
+
+  /* Typography hierarchy for Featherstone Intelligence */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-serif font-semibold text-foreground;
+    letter-spacing: 0.015em; /* +1.5% letter spacing */
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl;
+  }
+
+  p {
+    @apply mb-10; /* 40px paragraph spacing */
+  }
+
+  /* Added interactive state styles for buttons and links per brand guidelines */
+  /* Primary buttons: Vine Green background, Limestone White text, 12px radius, 14px 32px padding */
+  button,
+  .btn-primary {
+    background: #30594b;
+    color: #fafaf8;
+    border-radius: 12px;
+    padding: 14px 32px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  /* Hover state: Harvest Gold background, Charcoal Ink text */
+  button:hover,
+  .btn-primary:hover {
+    background: #c5aa7d;
+    color: #2c2b28;
+  }
+
+  /* Links: underline on hover only, subtle gold tint */
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  a:hover {
+    color: #c5aa7d;
+    text-decoration: underline;
+  }
+
+  /* Added brand gradient utility for subtle banners */
+  .brand-gradient {
+    background: linear-gradient(180deg, #fafaf8 0%, #f2f0ec 100%);
+  }
+
+  /* Updated card shadow to match brand specifications: 0 4px 30px rgba(0,0,0,0.08) */
+  .card-shadow {
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Updated transition timing to 300ms ease-in-out */
+  * {
+    transition-duration: 300ms;
+    transition-timing-function: ease-in-out;
+  }
+}
+
+/* Added spacing rhythm utilities based on 8px → 32px → 64px → 128px */
+@layer utilities {
+  .spacing-xs {
+    @apply space-y-2; /* 8px */
+  }
+
+  .spacing-sm {
+    @apply space-y-4; /* 16px */
+  }
+
+  .spacing-md {
+    @apply space-y-8; /* 32px */
+  }
+
+  .spacing-lg {
+    @apply space-y-16; /* 64px */
+  }
+
+  .spacing-xl {
+    @apply space-y-32; /* 128px */
+  }
+
+  /* Added large margin utilities for 120px top/bottom spacing */
+  .section-spacing {
+    @apply py-30; /* 120px top/bottom */
+  }
+
+  /* Added fade-in animation for viewport entrance */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  .animate-fade-in-delay-1 {
+    animation: fadeInUp 0.6s ease-out 0.1s forwards;
+    opacity: 0;
+  }
+
+  .animate-fade-in-delay-2 {
+    animation: fadeInUp 0.6s ease-out 0.2s forwards;
+    opacity: 0;
+  }
+
+  .animate-fade-in-delay-3 {
+    animation: fadeInUp 0.6s ease-out 0.3s forwards;
+    opacity: 0;
+  }
+
+  /* Added clockwise spin animation for loading logo */
+  @keyframes spin-clockwise {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin-logo {
+    animation: spin-clockwise 3s linear infinite;
+  }
+}
