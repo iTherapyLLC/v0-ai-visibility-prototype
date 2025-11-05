@@ -31,13 +31,14 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     const baseUrl = process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`
-      : request.headers.get("origin") || "http://localhost:3000"
+      : (request.headers.get("origin") ??
+        `${request.headers.get("x-forwarded-proto") ?? "https"}://${request.headers.get("x-forwarded-host") ?? request.headers.get("host")}`)
 
     const workerUrl = `${baseUrl}/api/worker/process-job?jobId=${jobId}`
 
     console.log("[v0] Triggering worker at:", workerUrl)
 
-    fetch(workerUrl, {
+    await fetch(workerUrl, {
       method: "POST",
       cache: "no-store",
       headers: { "Content-Type": "application/json" },

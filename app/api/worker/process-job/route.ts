@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing jobId parameter" }, { status: 400 })
     }
 
-    console.log("[v0] Worker processing job:", jobId)
+    console.log("[Worker] POST hit with jobId:", jobId)
 
     const scores = await runJob(jobId)
 
