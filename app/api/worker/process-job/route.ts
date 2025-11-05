@@ -5,6 +5,7 @@ import { FULL_PROMPT_SET } from "@/lib/prompts"
 
 export const maxDuration = 300 // 5 minutes for long batches
 export const runtime = "nodejs" // ensure Node runtime on Vercel
+export const dynamic = "force-dynamic" // Add force-dynamic to avoid 405/404 due to cache edge cases
 
 async function runJob(jobId: string) {
   const rows = await sql`
