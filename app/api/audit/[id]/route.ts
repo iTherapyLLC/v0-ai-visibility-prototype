@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { sql } from "@/lib/db"
 
+export const dynamic = "force-dynamic"
+
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const auditId = params.id
@@ -132,7 +134,11 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       ],
     }
 
-    return NextResponse.json(response)
+    return NextResponse.json(response, {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+      },
+    })
   } catch (error) {
     console.error("[v0] Error fetching audit:", error)
     return NextResponse.json(

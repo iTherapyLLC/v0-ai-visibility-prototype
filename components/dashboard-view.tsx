@@ -31,18 +31,16 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set())
   const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
 
-  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [auditData, setAuditData] = useState<any>(null)
-  const [jobProgress, setJobProgress] = useState<any>(null)
+  const [audit, setAudit] = useState<any>(null)
+  const [job, setJob] = useState<any>(null)
   const [competitorData, setCompetitorData] = useState<any>({
     topCompetitors: [],
     citationOpportunities: [],
     quickWins: [],
   })
-  const [pollCount, setPollCount] = useState(0)
-  const [isProcessing, setIsProcessing] = useState(true)
-  const [showRefreshButton, setShowRefreshButton] = useState(false)
+  const [timedOut, setTimedOut] = useState(false)
+  const [pollingTrigger, setPollingTrigger] = useState(0)
 
   const observer = new IntersectionObserver(
     (entries) => {
@@ -63,60 +61,51 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
     return () => observer.disconnect()
   }, [])
 
-  const fetchAuditData = async () => {
-    try {
-      console.log("[Dashboard] Fetching audit data for ID:", auditId)
+  useEffect(() => {
+    let attempts = 0
+    let timer: any
 
-      const [auditResponse, jobResponse] = await Promise.all([
-        fetch(`/api/audit/${auditId}`),
-        fetch(`/api/job-status/${auditId}`),
+    const tick = async () => {
+      attempts += 1
+
+      const [aRes, jRes] = await Promise.all([
+        fetch(`/api/audit/${auditId}`, { cache: "no-store" }),
+        fetch(`/api/job-status/${auditId}`, { cache: "no-store" }),
       ])
+      const a = await aRes.json()
+      const j = await jRes.json()
+      setAudit(a?.audit ?? a)
+      setJob(j)
 
-      if (!auditResponse.ok) {
-        throw new Error("Failed to fetch audit data")
+      // 👇 hard stop on completed/failed
+      if (
+        a?.audit?.status === "completed" ||
+        a?.audit?.status === "failed" ||
+        a?.status === "completed" ||
+        a?.status === "failed"
+      ) {
+        return
       }
 
-      const data = await auditResponse.json()
-      console.log("[Dashboard] Audit data received:", data)
-
-      if (jobResponse.ok) {
-        const jobData = await jobResponse.json()
-        console.log("[Dashboard] Job progress:", jobData)
-        setJobProgress(jobData)
+      if (attempts < 60) {
+        timer = setTimeout(tick, 3000)
+      } else {
+        // one last fresh fetch before timeout UI
+        const final = await fetch(`/api/audit/${auditId}`, { cache: "no-store" }).then((r) => r.json())
+        setAudit(final?.audit ?? final)
+        // if truly completed, render; else show refresh button
+        if (final?.audit?.status !== "completed" && final?.status !== "completed") {
+          setTimedOut(true)
+        }
       }
-
-      if (data.status === "completed") {
-        console.log("[Dashboard] Status is completed on mount, showing results immediately")
-        setIsProcessing(false)
-        setAuditData(data)
-        setIsLoading(false)
-      } else if (data.status === "processing") {
-        console.log("[Dashboard] Status is processing, continuing to poll")
-        setIsProcessing(true)
-        setAuditData(null)
-        setIsLoading(false)
-      } else if (data.status === "failed") {
-        console.log("[Dashboard] Status is failed")
-        setIsProcessing(false)
-        setError("Audit processing failed. Please try again.")
-        setIsLoading(false)
-      }
-    } catch (err) {
-      console.error("[v0] Error fetching audit data:", err)
-      setError("Failed to load audit data. Please try again.")
-      setIsLoading(false)
-      setIsProcessing(false)
     }
-  }
+
+    tick()
+    return () => clearTimeout(timer)
+  }, [auditId, pollingTrigger])
 
   useEffect(() => {
-    if (auditId) {
-      fetchAuditData()
-    }
-  }, [auditId])
-
-  useEffect(() => {
-    if (jobProgress?.status === "queued") {
+    if (job?.status === "queued") {
       const timer = setTimeout(() => {
         console.log("[Dashboard] Job still queued after 10s, retriggering process-audit endpoint")
         fetch(`/api/process-audit/${auditId}`, { cache: "no-store" })
@@ -125,71 +114,19 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
       }, 10000)
       return () => clearTimeout(timer)
     }
-  }, [jobProgress?.status, auditId])
+  }, [job?.status, auditId])
 
-  useEffect(() => {
-    if (!isProcessing) {
-      console.log("[Dashboard] Polling stopped - audit completed")
-      return
-    }
-
-    if (pollCount >= 60) {
-      console.log("[Dashboard] Polling timeout reached")
-      setError("Audit is taking longer than expected. The processing may still be running in the background.")
-      setShowRefreshButton(true)
-      setIsLoading(false)
-      setIsProcessing(false)
-      return
-    }
-
-    const timer = setTimeout(() => {
-      console.log(`[Dashboard] Polling attempt ${pollCount + 1}/60`)
-      setPollCount((prev) => prev + 1)
-    }, 3000)
-
-    return () => clearTimeout(timer)
-  }, [isProcessing, pollCount])
-
-  const handleRefreshResults = async () => {
-    console.log("[Dashboard] Manually refreshing audit status")
-    setShowRefreshButton(false)
+  const handleRefreshResults = () => {
+    console.log("[Dashboard] Restarting polling")
+    setTimedOut(false)
     setError(null)
-    setIsLoading(true)
-    setPollCount(0)
-
-    try {
-      const response = await fetch(`/api/audit/${auditId}`)
-      if (!response.ok) {
-        throw new Error("Failed to fetch audit data")
-      }
-
-      const data = await response.json()
-      console.log("[Dashboard] Refreshed audit data:", data)
-
-      if (data.status === "completed") {
-        console.log("[Dashboard] Audit is now completed!")
-        setIsProcessing(false)
-        setAuditData(data)
-        setIsLoading(false)
-      } else if (data.status === "processing") {
-        console.log("[Dashboard] Still processing, resuming polling")
-        setIsProcessing(true)
-        setIsLoading(false)
-      } else {
-        setError("Audit status unknown. Please try again.")
-        setIsLoading(false)
-      }
-    } catch (err) {
-      console.error("[v0] Error refreshing audit:", err)
-      setError("Failed to refresh audit status. Please try again.")
-      setIsLoading(false)
-    }
+    setPollingTrigger((prev) => prev + 1) // Trigger polling useEffect to re-run
   }
 
   useEffect(() => {
     const fetchCompetitorData = async () => {
       try {
-        const response = await fetch(`/api/competitors?url=${encodeURIComponent(websiteUrl)}`)
+        const response = await fetch(`/api/competitors?url=${encodeURIComponent(websiteUrl)}`, { cache: "no-store" })
 
         if (!response.ok) {
           console.log("[v0] Competitor API not available, using empty state")
@@ -223,97 +160,19 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
     element?.scrollIntoView({ behavior: "smooth" })
   }
 
-  console.log("[Dashboard] Render state check:", {
-    isLoading,
-    isProcessing,
-    hasError: !!error,
-    hasAuditData: !!auditData,
-    auditStatus: auditData?.status,
-    overallScore: auditData?.overallScore,
-  })
+  const auditStatus = audit?.status
+  const jobStatus = job?.status
 
-  if (auditData?.status === "completed") {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="p-8 text-center max-w-2xl">
-          <h2 className="text-2xl font-semibold mb-4 text-[#30594B]">
-            Audit completed for {auditData.website_url || websiteUrl}
-          </h2>
-          <p className="text-gray-600 text-lg mb-6">
-            {auditData.overallScore === 0
-              ? "No mentions were detected in AI results (0/10 prompts)."
-              : `Overall AI Visibility Score: ${auditData.overallScore}/100`}
-          </p>
-          <Button className="mt-6 bg-[#30594B] hover:bg-[#30594B]/90" onClick={() => window.location.reload()}>
-            Run Another Audit
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  if ((isLoading || isProcessing) && !auditData) {
-    console.log("[Dashboard] RETURNING loading state")
-
-    const progress = jobProgress?.progress || 0
-    const currentPrompt = jobProgress?.current_prompt || 0
-    const totalPrompts = jobProgress?.total_prompts || 10
-
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center space-y-8">
-          <img
-            src="/images/featherstone-logo.png"
-            alt="Featherstone Intelligence Loading"
-            style={{
-              width: "128px",
-              height: "auto",
-              margin: "0 auto 6rem",
-              display: "block",
-              animation: "spin 3s linear infinite",
-            }}
-            onError={(e) => {
-              console.error("[v0] Logo image failed to load")
-              e.currentTarget.style.display = "none"
-            }}
-          />
-          <div className="space-y-4">
-            <p className="text-xl font-medium text-foreground">
-              {isProcessing ? "ANALYZING AI VISIBILITY..." : "Loading audit results..."}
-            </p>
-            {jobProgress && jobProgress.status === "processing" && (
-              <>
-                <p className="text-sm text-muted-foreground">
-                  Testing prompt {currentPrompt} of {totalPrompts} ({progress}%)
-                </p>
-                <div className="w-64 mx-auto">
-                  <Progress value={progress} className="h-2" />
-                </div>
-              </>
-            )}
-            {(!jobProgress || jobProgress.status === "queued") && (
-              <p className="text-sm text-muted-foreground">Scanning ChatGPT, Perplexity, and Gemini</p>
-            )}
-          </div>
-        </div>
-        <style>{`
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
-      </div>
-    )
-  }
-
-  if (error && !auditData && showRefreshButton) {
-    console.log("[Dashboard] RETURNING timeout state with refresh button")
+  // 🚦 If timed out, show refresh button
+  if (timedOut) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center space-y-6 max-w-md">
           <div className="space-y-2">
-            <p className="text-lg font-medium text-gray-900">{error}</p>
-            <p className="text-sm text-gray-600">Click below to check if your audit has completed.</p>
+            <p className="text-lg font-medium text-gray-900">Audit is taking longer than expected</p>
+            <p className="text-sm text-gray-600">
+              The processing may still be running in the background. Click refresh to check if it's completed.
+            </p>
           </div>
           <div className="flex gap-3 justify-center">
             <Button onClick={handleRefreshResults} className="gap-2">
@@ -329,28 +188,17 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
     )
   }
 
-  if (error && !auditData) {
-    console.log("[Dashboard] RETURNING error state:", error)
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center space-y-4 max-w-md">
-          <p className="text-red-600 font-medium">{error}</p>
-          <Button onClick={onBack}>Back to Home</Button>
-        </div>
-      </div>
-    )
-  }
-
-  if (auditData && auditData.status === "completed") {
-    const overallScore = auditData.overallScore ?? 0
-    const citationCount = auditData.citationCount ?? 0
-    const promptResults = auditData.promptResults || { totalPrompts: 0, mentionedIn: 0, prompts: [] }
+  // 🚦 If the audit is completed, render results immediately
+  if (auditStatus === "completed") {
+    const overallScore = audit.overallScore ?? 0
+    const citationCount = audit.citationCount ?? 0
+    const promptResults = audit.promptResults || { totalPrompts: 0, mentionedIn: 0, prompts: [] }
     const totalPrompts = promptResults.totalPrompts || 0
     const mentionedIn = promptResults.mentionedIn || 0
     const prompts = promptResults.prompts || []
     const mentionRate = totalPrompts > 0 ? ((mentionedIn / totalPrompts) * 100).toFixed(0) : "0"
 
-    const dimensionScores = auditData.dimensionScores || {
+    const dimensionScores = audit.dimensionScores || {
       citationPresence: 0,
       position: 0,
       sentiment: 0,
@@ -399,7 +247,7 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
       },
     ]
 
-    const recommendations = auditData.recommendations?.length > 0 ? auditData.recommendations : defaultRecommendations
+    const recommendations = audit.recommendations?.length > 0 ? audit.recommendations : defaultRecommendations
 
     return (
       <div className="min-h-screen bg-[#FAFAF8]">
@@ -766,13 +614,77 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
     )
   }
 
-  console.log("[Dashboard] FALLBACK - No data available")
+  // If the audit failed, show error
+  if (auditStatus === "failed" || jobStatus === "failed") {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center space-y-6 max-w-md">
+          <div className="space-y-2">
+            <p className="text-lg font-medium text-gray-900">Audit failed</p>
+            <p className="text-sm text-gray-600">
+              {error || "An error occurred while processing your audit. Please try again."}
+            </p>
+          </div>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={handleRefreshResults} className="gap-2">
+              <RefreshCw className="w-4 h-4" />
+              Retry
+            </Button>
+            <Button onClick={onBack} variant="outline">
+              Back to Home
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Otherwise keep showing progress
+  const progress = job?.progress || 0
+  const currentPrompt = job?.current_prompt || 0
+  const totalPrompts = job?.total_prompts || 10
+
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
-      <div className="text-center space-y-4 max-w-md">
-        <p className="text-red-600 font-medium">No audit data available</p>
-        <Button onClick={onBack}>Back to Home</Button>
+      <div className="text-center space-y-8">
+        <img
+          src="/images/featherstone-logo.png"
+          alt="Featherstone Intelligence Loading"
+          style={{
+            width: "128px",
+            height: "auto",
+            margin: "0 auto 6rem",
+            display: "block",
+            animation: "spin 3s linear infinite",
+          }}
+          onError={(e) => {
+            console.error("[v0] Logo image failed to load")
+            e.currentTarget.style.display = "none"
+          }}
+        />
+        <div className="space-y-4">
+          <p className="text-xl font-medium text-foreground">ANALYZING AI VISIBILITY...</p>
+          {job && job.status === "processing" && (
+            <>
+              <p className="text-sm text-muted-foreground">
+                Testing prompt {currentPrompt} of {totalPrompts} ({progress}%)
+              </p>
+              <div className="w-64 mx-auto">
+                <Progress value={progress} className="h-2" />
+              </div>
+            </>
+          )}
+          {(!job || job.status === "queued") && (
+            <p className="text-sm text-muted-foreground">Scanning ChatGPT, Perplexity, and Gemini</p>
+          )}
+        </div>
       </div>
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   )
 }

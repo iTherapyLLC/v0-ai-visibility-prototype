@@ -1,5 +1,7 @@
-import { type NextRequest, NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 import { sql } from "@/lib/db"
+
+export const dynamic = "force-dynamic"
 
 export async function GET(request: NextRequest, { params }: { params: { auditId: string } }) {
   try {
@@ -11,12 +13,30 @@ export async function GET(request: NextRequest, { params }: { params: { auditId:
     `
 
     if (result.length === 0) {
-      return NextResponse.json({ status: "not_found" })
+      return new Response(JSON.stringify({ status: "not_found" }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      })
     }
 
-    return NextResponse.json(result[0])
+    return new Response(JSON.stringify(result[0]), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+      },
+    })
   } catch (error) {
     console.error("[v0] Job status error:", error)
-    return NextResponse.json({ error: "Failed to fetch job status" }, { status: 500 })
+    return new Response(JSON.stringify({ error: "Failed to fetch job status" }), {
+      status: 500,
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+      },
+    })
   }
 }
