@@ -118,18 +118,23 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
 
   const handleRefreshResults = () => {
     console.log("[Dashboard] Restarting polling")
-    setTimedOut(false)
+    setTimedOut(true)
     setError(null)
-    setPollingTrigger((prev) => prev + 1) // Trigger polling useEffect to re-run
+    setTimeout(() => {
+      setTimedOut(false)
+      setPollingTrigger((p) => p + 1)
+    }, 250)
   }
 
   useEffect(() => {
     const fetchCompetitorData = async () => {
       try {
-        const response = await fetch(`/api/competitors?url=${encodeURIComponent(websiteUrl)}`, { cache: "no-store" })
+        const response = await fetch(`/api/competitors?username=${encodeURIComponent(websiteUrl)}`, {
+          cache: "no-store",
+        })
 
         if (!response.ok) {
-          console.log("[v0] Competitor API not available, using empty state")
+          console.log("[v0] Competitor API not available; using empty state")
           setCompetitorData({
             topCompetitors: [],
             citationOpportunities: [],
@@ -139,9 +144,8 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
         }
 
         const data = await response.json()
-        setCompetitorData(data)
-      } catch (err) {
-        console.log("[v0] Competitor data unavailable, displaying empty state")
+        setTimeout(() => setCompetitorData(data), 0)
+      } catch {
         setCompetitorData({
           topCompetitors: [],
           citationOpportunities: [],
@@ -171,7 +175,7 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
           <div className="space-y-2">
             <p className="text-lg font-medium text-gray-900">Audit is taking longer than expected</p>
             <p className="text-sm text-gray-600">
-              The processing may still be running in the background. Click refresh to check if it's completed.
+              The processing may still be running in the background. Click refresh to check again.
             </p>
           </div>
           <div className="flex gap-3 justify-center">
@@ -190,15 +194,15 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
 
   // 🚦 If the audit is completed, render results immediately
   if (auditStatus === "completed") {
-    const overallScore = audit.overallScore ?? 0
-    const citationCount = audit.citationCount ?? 0
-    const promptResults = audit.promptResults || { totalPrompts: 0, mentionedIn: 0, prompts: [] }
-    const totalPrompts = promptResults.totalPrompts || 0
-    const mentionedIn = promptResults.mentionedIn || 0
-    const prompts = promptResults.prompts || []
+    const overallScore = Number(audit?.overallScore ?? 0)
+    const citationCount = Number(audit?.citationCount ?? 0)
+    const promptResults = audit?.promptResults || { totalPrompts: 0, mentionedIn: 0, prompts: [] }
+    const totalPrompts = Number(promptResults?.totalPrompts ?? 0)
+    const mentionedIn = Number(promptResults?.mentionedIn ?? 0)
+    const prompts = Array.isArray(promptResults?.prompts) ? promptResults?.prompts : []
     const mentionRate = totalPrompts > 0 ? ((mentionedIn / totalPrompts) * 100).toFixed(0) : "0"
 
-    const dimensionScores = audit.dimensionScores || {
+    const dimensionScores = audit?.dimensionScores || {
       citationPresence: 0,
       position: 0,
       sentiment: 0,
@@ -220,34 +224,32 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
     const defaultRecommendations = [
       {
         title: "Claim Your Business Listings",
-        description: "Ensure your business is claimed on Google My Business, Yelp, and other major platforms.",
+        description: "Ensure your business is verified on Google, Yelp, TripAdvisor, and key wine directories.",
         priority: "high",
       },
       {
         title: "Enhance Website Content",
-        description:
-          "Add detailed descriptions about your winery, including history, wine varieties, and unique features.",
+        description: "Add schema markup and publish FAQ + 'best of' content aligned to common AI queries.",
         priority: "high",
       },
       {
-        title: "Encourage Customer Reviews",
-        description:
-          "Request reviews from satisfied customers on multiple platforms to build credibility and visibility.",
+        title: "Encourage Reviews & PR",
+        description: "Collect Google reviews, highlight awards, and secure mentions in trusted publications.",
         priority: "medium",
       },
       {
         title: "Ensure NAP Consistency",
-        description: "Make sure your Name, Address, and Phone number are consistent across all online platforms.",
+        description: "Keep name, address, and phone number 100% consistent across all listings.",
         priority: "medium",
       },
       {
-        title: "Create Quality Content",
-        description: "Publish blog posts, wine guides, and event information to establish authority in your niche.",
+        title: "Build Authority Backlinks",
+        description: "Partner with local guides, wine blogs, and tourism sites to earn reputable links.",
         priority: "low",
       },
     ]
-
-    const recommendations = audit.recommendations?.length > 0 ? audit.recommendations : defaultRecommendations
+    const recommendations =
+      Array.isArray(audit?.reasons) && audit.reasons.length > 0 ? audit.reasons : defaultRecommendations
 
     return (
       <div className="min-h-screen bg-[#FAFAF8]">
@@ -268,7 +270,9 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
           {/* Hero Section - Overall Score */}
           <section className="text-center space-y-6">
             <div className="inline-flex items-center gap-3">
-              <h2 className="text-4xl font-serif text-[#30594B]">Overall AI Visibility Score</h2>
+              <h2 className="text-4xl font-serif text-[#30594B]">
+                Overall <span className="hidden sm:inline">AI Visibility</span> Score
+              </h2>
               <Badge variant={statusBadge.variant} className="text-sm px-3 py-1">
                 {statusBadge.label}
               </Badge>
@@ -334,9 +338,9 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
           <section className="space-y-6">
             <div>
               <h3 className="text-2xl font-serif text-[#30594B] mb-2">GEO Visibility Breakdown</h3>
+              {/* Updated description to be more concise and accurate */}
               <p className="text-gray-600">
-                Your AI visibility score across four key dimensions that determine how AI assistants recommend your
-                business
+                How AI assistants mention, rank, describe, and repeatedly surface your brand.
               </p>
             </div>
 
@@ -347,7 +351,7 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-[#30594B]/10 rounded-lg">
-                        <Award className="w-5 h-5 text-[#30594B]" />
+                        <Award className="w-5 h-5 text-[#314d3f]" />
                       </div>
                       <div>
                         <CardTitle className="text-lg font-medium text-[#30594B]">Citation Presence</CardTitle>
@@ -358,13 +362,13 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <Progress value={(dimensionScores.citationPresence / 25) * 100} className="h-3" />
+                  <Progress value={(dimensionScores.citationPresence / 25) * 100} className="h-2" />
                   <p className="text-sm text-gray-600 mt-3">
                     {dimensionScores.citationPresence >= 20
-                      ? "Excellent - You're mentioned by name consistently"
+                      ? "Excellent – mentioned by name consistently"
                       : dimensionScores.citationPresence >= 10
-                        ? "Good - You're mentioned, but often by category"
-                        : "Needs work - Rarely mentioned by name"}
+                        ? "Good – mentioned indirectly or by category"
+                        : "Needs work – rarely mentioned by name"}
                   </p>
                 </CardContent>
               </Card>
@@ -386,13 +390,13 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <Progress value={(dimensionScores.position / 35) * 100} className="h-3" />
+                  <Progress value={(dimensionScores.position / 35) * 100} className="h-2" />
                   <p className="text-sm text-gray-600 mt-3">
                     {dimensionScores.position >= 30
-                      ? "Excellent - Often recommended first"
+                      ? "Excellent – often recommended first"
                       : dimensionScores.position >= 15
-                        ? "Good - Appearing in top recommendations"
-                        : "Needs work - Rarely in top positions"}
+                        ? "Good – appearing in top recommendations"
+                        : "Needs work – rarely at the top"}
                   </p>
                 </CardContent>
               </Card>
@@ -407,20 +411,20 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                       </div>
                       <div>
                         <CardTitle className="text-lg font-medium text-[#30594B]">Sentiment</CardTitle>
-                        <p className="text-sm text-gray-500">How you're recommended</p>
+                        <p className="text-sm text-gray-500">How you're described</p>
                       </div>
                     </div>
                     <div className="text-2xl font-bold text-[#30594B]">{dimensionScores.sentiment}/25</div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <Progress value={(dimensionScores.sentiment / 25) * 100} className="h-3" />
+                  <Progress value={(dimensionScores.sentiment / 25) * 100} className="h-2" />
                   <p className="text-sm text-gray-600 mt-3">
                     {dimensionScores.sentiment >= 20
-                      ? "Excellent - Positive recommendations"
+                      ? "Positive tone dominates"
                       : dimensionScores.sentiment >= 10
-                        ? "Good - Neutral mentions"
-                        : "Needs work - Limited positive sentiment"}
+                        ? "Mostly neutral"
+                        : "Needs work – limited positive signals"}
                   </p>
                 </CardContent>
               </Card>
@@ -435,20 +439,20 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                       </div>
                       <div>
                         <CardTitle className="text-lg font-medium text-[#30594B]">Frequency</CardTitle>
-                        <p className="text-sm text-gray-500">How often you're mentioned</p>
+                        <p className="text-sm text-gray-500">How often you're in the mix</p>
                       </div>
                     </div>
                     <div className="text-2xl font-bold text-[#30594B]">{dimensionScores.frequency}/15</div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <Progress value={(dimensionScores.frequency / 15) * 100} className="h-3" />
+                  <Progress value={(dimensionScores.frequency / 15) * 100} className="h-2" />
                   <p className="text-sm text-gray-600 mt-3">
                     {dimensionScores.frequency >= 12
-                      ? "Excellent - Mentioned multiple times"
+                      ? "Consistently surfaced"
                       : dimensionScores.frequency >= 6
-                        ? "Good - Consistent single mentions"
-                        : "Needs work - Infrequent mentions"}
+                        ? "Intermittent"
+                        : "Infrequent"}
                   </p>
                 </CardContent>
               </Card>
@@ -459,19 +463,19 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
           <section className="space-y-6">
             <div>
               <h3 className="text-2xl font-serif text-[#30594B] mb-2">AI Prompt Results</h3>
-              <p className="text-gray-600">Detailed breakdown of how AI assistants responded to relevant queries</p>
+              <p className="text-gray-600">How AI assistants answered the specific questions we asked.</p>
             </div>
 
             <div className="space-y-4">
-              {prompts.length > 0 ? (
+              {Array.isArray(prompts) && prompts.length > 0 ? (
                 prompts.map((prompt: any, index: number) => (
                   <Card key={index}>
                     <CardHeader>
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
-                          <CardTitle className="text-base font-medium text-gray-900 mb-2">"{prompt.prompt}"</CardTitle>
+                          <CardTitle className="text-base font-medium text-gray-900 mb-2">"{prompt?.prompt}"</CardTitle>
                           <div className="flex items-center gap-2">
-                            {prompt.mentioned ? (
+                            {prompt?.analysis?.mentioned ? (
                               <>
                                 <CheckCircle2 className="w-5 h-5 text-green-600" />
                                 <span className="text-sm font-medium text-green-600">Mentioned</span>
@@ -486,11 +490,11 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                         </div>
                       </div>
                     </CardHeader>
-                    {prompt.mentioned && prompt.response && (
+                    {prompt?.analysis?.mentioned && prompt?.response && (
                       <CardContent>
                         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                          <p className="text-sm text-gray-700 italic">"{prompt.response}"</p>
-                          <p className="text-xs text-gray-500 mt-2">— AI Response Excerpt</p>
+                          <p className="text-sm text-gray-700 italic">"{String(prompt.response).slice(0, 800)}"</p>
+                          <p className="text-xs text-gray-500 mt-2">— AI response excerpt</p>
                         </div>
                       </CardContent>
                     )}
@@ -518,35 +522,116 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                       <span className="font-semibold text-[#30594B]">
                         AI assistants are not recommending your winery
                       </span>{" "}
-                      when asked relevant questions. This means potential customers using ChatGPT, Claude, Perplexity,
-                      or similar AI tools won't discover your business through these increasingly popular channels.
+                      for the tested queries. Potential guests relying on AI tools likely won't discover your brand
+                      organically.
                     </p>
                     <p className="text-gray-700 leading-relaxed">
-                      As more consumers rely on AI for recommendations, improving your AI visibility is becoming
-                      critical for attracting new customers. The good news: there are proven strategies to increase your
-                      presence in AI responses.
+                      As discovery shifts from search engines to AI, improving your AI visibility becomes critical. The
+                      good news: there is a clear, trackable path to raise these scores in 30–60 days.
                     </p>
                   </div>
                 ) : overallScore < 41 ? (
                   <p className="text-gray-700 leading-relaxed">
-                    Your winery has <span className="font-semibold text-[#30594B]">limited visibility</span> in AI
-                    assistant responses. While you're appearing in some queries, there's significant room for
-                    improvement to capture more AI-driven traffic and recommendations.
+                    You have <span className="font-semibold text-[#30594B]">limited visibility</span>. You appear for
+                    some questions, but not consistently or prominently. We'll prioritize fixes that increase your named
+                    mentions and move you up the list.
                   </p>
                 ) : overallScore < 71 ? (
                   <p className="text-gray-700 leading-relaxed">
-                    Your winery has <span className="font-semibold text-[#30594B]">good visibility</span> in AI
-                    assistant responses. You're being recommended for relevant queries, but there are still
-                    opportunities to improve your presence and capture even more AI-driven traffic.
+                    You have <span className="font-semibold text-[#30594B]">good visibility</span>. We'll focus on
+                    pushing you toward #1–#3 positions and expanding coverage to more topics.
                   </p>
                 ) : (
                   <p className="text-gray-700 leading-relaxed">
-                    Excellent work! Your winery has{" "}
-                    <span className="font-semibold text-[#30594B]">strong visibility</span> in AI assistant responses.
-                    You're well-positioned to capture AI-driven traffic and recommendations. Continue maintaining your
-                    online presence to sustain this advantage.
+                    You have <span className="font-semibold text-[#30594B]">strong visibility</span>. The goal shifts to
+                    maintaining prominence and defending against competitors.
                   </p>
                 )}
+              </CardContent>
+            </Card>
+          </section>
+
+          <section id="ai-visibility-explanation" className="space-y-8">
+            <div>
+              <h3 className="text-2xl font-serif text-[#30594B] mb-2">Understanding Your AI Visibility Score</h3>
+              <p className="text-gray-600 max-w-3xl">
+                Your AI Visibility Score shows how easily AI assistants—like ChatGPT, Perplexity, and Gemini—can find,
+                understand, and recommend your business. It's the next generation of SEO for AI-driven search.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="border-l-4 border-l-[#30594B]">
+                <CardHeader>
+                  <CardTitle className="text-lg text-[#30594B]">Citation Presence (0–25)</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-gray-600 space-y-2">
+                  <p>Measures how often AI mentions your business by name.</p>
+                  <p>
+                    <strong>Improve:</strong> add schema markup, ensure consistent NAP across directories, and earn
+                    reputable backlinks/press mentions.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-l-4 border-l-[#C5AA7D]">
+                <CardHeader>
+                  <CardTitle className="text-lg text-[#30594B]">Position Weight (0–35)</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-gray-600 space-y-2">
+                  <p>Shows where you rank in AI recommendation lists.</p>
+                  <p>
+                    <strong>Improve:</strong> publish "best-of" and FAQ content aligned to common queries; get listed on
+                    sources AI trusts (Yelp, TripAdvisor, Wine Enthusiast).
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-l-4 border-l-green-500">
+                <CardHeader>
+                  <CardTitle className="text-lg text-[#30594B]">Sentiment (0–25)</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-gray-600 space-y-2">
+                  <p>How positively AI describes your brand.</p>
+                  <p>
+                    <strong>Improve:</strong> drive reviews, highlight awards/testimonials, and surface positive press
+                    on site pages AI crawls.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-l-4 border-l-blue-500">
+                <CardHeader>
+                  <CardTitle className="text-lg text-[#30594B]">Frequency (0–15)</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-gray-600 space-y-2">
+                  <p>How consistently you appear across different AI questions.</p>
+                  <p>
+                    <strong>Improve:</strong> use a consistent brand name; keep Google Business, OpenTable, and Yelp
+                    listings updated; expand relevant content.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="border-l-4 border-l-[#30594B]">
+              <CardHeader>
+                <CardTitle className="text-lg text-[#30594B]">Overall Score (0–100)</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-gray-600">
+                Combines all four dimensions. 0–40 = rarely recommended, 41–70 = sometimes, 71+ = frequently and
+                favorably recommended.
+              </CardContent>
+            </Card>
+
+            <Card className="border-l-4 border-l-red-500">
+              <CardHeader>
+                <CardTitle className="text-lg text-[#30594B]">What a Low Score Means</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-gray-600">
+                AI tools aren't confident enough to recommend your business for your category. You're more likely to be
+                grouped as "generic" rather than a standout destination. The fix is targeted content, structured data,
+                reputation signals, and consistent naming.
               </CardContent>
             </Card>
           </section>
@@ -558,16 +643,16 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                 <Lightbulb className="w-6 h-6 text-[#C5AA7D]" />
                 How to Improve Your AI Visibility
               </h3>
-              <p className="text-gray-600">Actionable steps to increase your presence in AI assistant responses</p>
+              <p className="text-gray-600">Actionable steps to increase your presence in AI assistant responses.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {recommendations.map((rec: any, index: number) => (
+              {(Array.isArray(recommendations) ? recommendations : []).map((rec: any, index: number) => (
                 <Card key={index} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-start justify-between gap-4">
-                      <CardTitle className="text-lg font-medium text-[#30594B]">{rec.title}</CardTitle>
-                      {rec.priority && (
+                      <CardTitle className="text-lg font-medium text-[#30594B]">{rec?.title}</CardTitle>
+                      {rec?.priority && (
                         <Badge
                           variant={
                             rec.priority === "high"
@@ -578,13 +663,13 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                           }
                           className="text-xs"
                         >
-                          {rec.priority}
+                          {rec.priority || "info"}
                         </Badge>
                       )}
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-600 text-sm leading-relaxed">{rec.description}</p>
+                    <p className="text-gray-600 text-sm leading-relaxed">{rec?.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -596,15 +681,12 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
             <div className="max-w-2xl mx-auto space-y-4">
               <h3 className="text-2xl font-serif text-[#30594B]">Ready to Improve Your AI Visibility?</h3>
               <p className="text-gray-600">
-                Contact Featherstone Intelligence to develop a customized strategy for increasing your presence in AI
-                assistant responses.
+                Contact Featherstone Intelligence to develop a focused plan to raise these scores over the next 30–60
+                days.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+              <div className="flex justify-center items-center pt-4">
                 <Button size="lg" className="bg-[#30594B] hover:bg-[#30594B]/90">
                   Schedule Consultation
-                </Button>
-                <Button size="lg" variant="outline" onClick={onBack}>
-                  Run Another Audit
                 </Button>
               </div>
             </div>
@@ -640,9 +722,9 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
   }
 
   // Otherwise keep showing progress
-  const progress = job?.progress || 0
-  const currentPrompt = job?.current_prompt || 0
-  const totalPrompts = job?.total_prompts || 10
+  const progress = Number(job?.progress || 0)
+  const currentPrompt = Number(job?.current_prompt || 0)
+  const totalPrompts = Number(job?.total_prompts || 10)
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
@@ -664,7 +746,7 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
         />
         <div className="space-y-4">
           <p className="text-xl font-serif font-semibold text-foreground">ANALYZING AI VISIBILITY...</p>
-          {job && job.status === "processing" && (
+          {job && job?.status === "processing" ? (
             <>
               <p className="text-sm text-muted-foreground">
                 Testing prompt {currentPrompt} of {totalPrompts} ({progress}%)
@@ -673,8 +755,7 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                 <Progress value={progress} className="h-2" />
               </div>
             </>
-          )}
-          {(!job || job.status === "queued") && (
+          ) : (
             <p className="text-sm text-muted-foreground">Scanning ChatGPT, Perplexity, and Gemini</p>
           )}
         </div>
