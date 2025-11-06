@@ -691,11 +691,11 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                 Contact Featherstone Intelligence to develop a focused plan to raise these scores over the next 30–60
                 days.
               </p>
-              <div className="flex justify-center items-center pt-4">
-                <Button size="lg" className="bg-[#30594B] hover:bg-[#30594B]/90">
-                  Schedule Consultation
-                </Button>
-              </div>
+            </div>
+            <div className="flex justify-center items-center w-full pt-4">
+              <Button size="lg" className="bg-[#30594B] hover:bg-[#30594B]/90">
+                Schedule Consultation
+              </Button>
             </div>
           </section>
         </div>
