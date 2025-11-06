@@ -116,12 +116,24 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
   }, [auditId])
 
   useEffect(() => {
+    if (jobProgress?.status === "queued") {
+      const timer = setTimeout(() => {
+        console.log("[Dashboard] Job still queued after 10s, retriggering process-audit endpoint")
+        fetch(`/api/process-audit/${auditId}`, { cache: "no-store" })
+          .then(() => console.log("[Dashboard] Retrigger successful"))
+          .catch((err) => console.error("[Dashboard] Retrigger failed:", err))
+      }, 10000)
+      return () => clearTimeout(timer)
+    }
+  }, [jobProgress?.status, auditId])
+
+  useEffect(() => {
     if (!isProcessing) {
       console.log("[Dashboard] Polling stopped - audit completed")
       return
     }
 
-    if (pollCount >= 40) {
+    if (pollCount >= 60) {
       console.log("[Dashboard] Polling timeout reached")
       setError("Audit is taking longer than expected. The processing may still be running in the background.")
       setShowRefreshButton(true)
@@ -131,7 +143,7 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
     }
 
     const timer = setTimeout(() => {
-      console.log(`[Dashboard] Polling attempt ${pollCount + 1}/40`)
+      console.log(`[Dashboard] Polling attempt ${pollCount + 1}/60`)
       setPollCount((prev) => prev + 1)
     }, 3000)
 
@@ -252,7 +264,7 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
             {jobProgress && jobProgress.status === "processing" && (
               <>
                 <p className="text-sm text-muted-foreground">
-                  Testing prompt {currentPrompt} of {totalPrompts}... ({progress}% complete)
+                  Testing prompt {currentPrompt} of {totalPrompts} ({progress}%)
                 </p>
                 <div className="w-64 mx-auto">
                   <Progress value={progress} className="h-2" />

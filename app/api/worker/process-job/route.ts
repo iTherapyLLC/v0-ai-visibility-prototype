@@ -88,45 +88,20 @@ async function runJob(jobId: string) {
   return scores
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
+  const jobId = new URL(req.url).searchParams.get("jobId")
+  if (!jobId) return NextResponse.json({ error: "jobId required" }, { status: 400 })
+
+  console.log("[Worker] POST hit with jobId:", jobId)
+
   try {
-    const { searchParams } = new URL(request.url)
-    const jobId = searchParams.get("jobId")
-
-    if (!jobId) {
-      return NextResponse.json({ error: "Missing jobId parameter" }, { status: 400 })
-    }
-
-    console.log("[Worker] POST hit with jobId:", jobId)
-
     const scores = await runJob(jobId)
-
-    return NextResponse.json({
-      success: true,
-      jobId: jobId,
-      scores: scores,
-    })
-  } catch (error) {
-    console.error("[v0] Worker error:", error)
-
-    // Try to update job status to failed
-    try {
-      const { searchParams } = new URL(request.url)
-      const jobId = searchParams.get("jobId")
-      if (jobId) {
-        await sql`UPDATE audit_jobs SET status = 'failed' WHERE id = ${jobId}`
-      }
-    } catch (updateError) {
-      console.error("[v0] Failed to update job status:", updateError)
-    }
-
-    return NextResponse.json(
-      {
-        error: "Worker processing failed",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 },
-    )
+    return NextResponse.json({ ok: true, scores })
+  } catch (e) {
+    const errorMsg = e instanceof Error ? e.message : "Unknown error"
+    console.error("[Worker] Failed:", errorMsg)
+    await sql`UPDATE audit_jobs SET status='failed', error_message=${errorMsg}, completed_at=NOW() WHERE id=${jobId}`
+    return NextResponse.json({ error: errorMsg }, { status: 500 })
   }
 }
 

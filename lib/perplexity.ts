@@ -49,6 +49,30 @@ export interface VisibilityTestResult {
   detailScore: number
 }
 
+// Helper function to calculate detail score
+function calculateDetailScore(analysis: VisibilityAnalysis): number {
+  const { mentioned, position, sentiment, mentionCount } = analysis
+  let score = 0
+
+  if (mentioned) {
+    score += 10 // Base score for being mentioned
+  }
+
+  if (position !== null && position <= 3) {
+    score += 5 // Additional score for being in top 3 positions
+  }
+
+  if (sentiment === "positive") {
+    score += 5 // Additional score for positive sentiment
+  } else if (sentiment === "negative") {
+    score -= 5 // Deduct score for negative sentiment
+  }
+
+  score += Math.min(mentionCount, 5) * 2 // Additional score for mentions, capped at 10
+
+  return Math.max(0, score) // Ensure score is not negative
+}
+
 export async function testVisibilityWithPerplexity(
   businessName: string,
   websiteUrl: string,
@@ -119,43 +143,74 @@ export async function testVisibilityWithPerplexity(
   }
 }
 
+// Helper functions for improved mention detection
+function norm(s: string): string {
+  return s.toLowerCase().replace(/[^a-z0-9]/g, "") // remove spaces, punctuation
+}
+
+// Derive a display name from the domain for matching (no TLD)
+function nameFromUrl(websiteUrl: string): string {
+  try {
+    const host = new URL(websiteUrl).hostname.replace(/^www\./, "")
+    // take the left-most label (before first dot)
+    const left = host.split(".")[0] // 'robertmondaviwinery'
+    // replace dashes/underscores with spaces (handles e.g. 'robert-mondavi-winery')
+    return left.replace(/[-_]+/g, " ").trim() // 'robertmondaviwinery' -> unchanged; dash cases become spaced
+  } catch {
+    return ""
+  }
+}
+
 function analyzeResponse(
   aiResponse: string,
   businessName: string,
   websiteUrl: string,
   citations: string[],
 ): VisibilityAnalysis {
-  const businessNameLower = businessName.toLowerCase()
-  const responseLower = aiResponse.toLowerCase()
+  const businessDisplay = nameFromUrl(websiteUrl) // 'robertmondaviwinery'
+  const bizNorm = norm(businessDisplay) // 'robertmondaviwinery'
+  const responseNorm = norm(aiResponse) // whole response normalized
 
-  // Check if mentioned
-  const mentioned = responseLower.includes(businessNameLower)
+  // 1) Raw mention check (handles domain form vs spaced form)
+  let mentioned = responseNorm.includes(bizNorm)
 
-  // Count mentions
-  const mentionCount = (responseLower.match(new RegExp(businessNameLower, "g")) || []).length
+  // 2) Extract candidate winery names from the response (Title-cased + common suffixes)
+  const wineryPattern = /\b[A-Z][a-zA-Z\s&''-]+?(Vineyard|Vineyards|Winery|Wineries|Estate|Cellars|Wines)\b/g
+  const candidates = Array.from(new Set(aiResponse.match(wineryPattern) || []))
 
-  // Find position in list
-  let position: number | null = null
-  if (mentioned) {
-    // Match winery/hospitality business names
-    const businessPattern =
-      /\b[A-Z][a-zA-Z\s&'-]+(Vineyard|Winery|Estate|Cellars|Wines|Inn|Lodge|Resort|Hotel|Restaurant)\b/g
-    const allBusinesses = aiResponse.match(businessPattern) || []
-    const uniqueBusinesses = Array.from(new Set(allBusinesses.map((w) => w.trim())))
-
-    const foundIndex = uniqueBusinesses.findIndex((w) => w.toLowerCase().includes(businessNameLower))
-    position = foundIndex >= 0 ? foundIndex + 1 : null
-
-    console.log(`[v0] Found ${uniqueBusinesses.length} businesses, target at position ${position}`)
+  // 3) If not found via raw substring, compare normalized candidates
+  if (!mentioned) {
+    mentioned = candidates.some((c) => norm(c).includes(bizNorm) || bizNorm.includes(norm(c)))
   }
 
-  // Extract competitors
-  const businessPattern =
-    /\b[A-Z][a-zA-Z\s&'-]+(Vineyard|Winery|Estate|Cellars|Wines|Inn|Lodge|Resort|Hotel|Restaurant)\b/g
-  const allMatches = aiResponse.match(businessPattern) || []
-  const competitors = Array.from(new Set(allMatches))
-    .map((w) => w.trim())
-    .filter((w) => !w.toLowerCase().includes(businessNameLower))
+  // 4) Compute position using normalized comparison against the ordered unique candidates list
+  let position: number | null = null
+  if (mentioned && candidates.length) {
+    for (let i = 0; i < candidates.length; i++) {
+      const cNorm = norm(candidates[i])
+      if (cNorm.includes(bizNorm) || bizNorm.includes(cNorm)) {
+        position = i + 1 // 1-indexed
+        break
+      }
+    }
+  }
+
+  console.log(`[v0] Found ${candidates.length} businesses, target at position ${position}`)
+
+  // Count mentions using normalized comparison
+  const mentionCount = mentioned
+    ? candidates.filter((c) => {
+        const cNorm = norm(c)
+        return cNorm.includes(bizNorm) || bizNorm.includes(cNorm)
+      }).length
+    : 0
+
+  // Extract competitors (exclude the target business)
+  const competitors = candidates
+    .filter((c) => {
+      const cNorm = norm(c)
+      return !(cNorm.includes(bizNorm) || bizNorm.includes(cNorm))
+    })
     .slice(0, 10)
 
   console.log(`[v0] Found ${competitors.length} competitors`)
@@ -234,8 +289,8 @@ function analyzeResponse(
       "underwhelming",
     ]
 
-    const hasPositive = positiveWords.some((word) => responseLower.includes(word))
-    const hasNegative = negativeWords.some((word) => responseLower.includes(word))
+    const hasPositive = positiveWords.some((word) => responseNorm.includes(norm(word)))
+    const hasNegative = negativeWords.some((word) => responseNorm.includes(norm(word)))
 
     if (hasPositive && !hasNegative) sentiment = "positive"
     else if (hasNegative && !hasPositive) sentiment = "negative"
@@ -244,7 +299,8 @@ function analyzeResponse(
     // Extract context (sentence containing business name)
     const sentences = aiResponse.split(/[.!?]+/)
     for (const sentence of sentences) {
-      if (sentence.toLowerCase().includes(businessNameLower)) {
+      const sentenceNorm = norm(sentence)
+      if (sentenceNorm.includes(bizNorm)) {
         context = sentence.trim()
         break
       }
@@ -260,34 +316,6 @@ function analyzeResponse(
     context,
     mentionCount,
   }
-}
-
-function calculateDetailScore(analysis: VisibilityAnalysis): number {
-  // Citation Presence (0-25)
-  const citationScore = analysis.mentioned ? 25 : 0
-
-  // Position Score (0-35)
-  let positionScore = 0
-  if (analysis.mentioned && analysis.position) {
-    if (analysis.position === 1) positionScore = 35
-    else if (analysis.position <= 3) positionScore = 25
-    else if (analysis.position <= 5) positionScore = 15
-    else positionScore = 5
-  }
-
-  // Sentiment Score (0-25)
-  const sentimentScores = {
-    positive: 25,
-    neutral: 15,
-    negative: 5,
-    not_mentioned: 0,
-  }
-  const sentimentScore = sentimentScores[analysis.sentiment]
-
-  // Frequency Score (0-15)
-  const frequencyScore = Math.min(15, analysis.mentionCount * 5)
-
-  return citationScore + positionScore + sentimentScore + frequencyScore
 }
 
 export async function batchTestVisibility(

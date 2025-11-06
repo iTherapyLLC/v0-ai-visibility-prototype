@@ -29,12 +29,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       VALUES (${jobId}, ${auditId}, 'queued', ${totalPrompts})
     `
 
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : (request.headers.get("origin") ??
-        `${request.headers.get("x-forwarded-proto") ?? "https"}://${request.headers.get("x-forwarded-host") ?? request.headers.get("host")}`)
-
-    const workerUrl = `${baseUrl}/api/worker/process-job?jobId=${jobId}`
+    const origin = request.nextUrl.origin // e.g., https://v0-ai-visibility-prototype.vercel.app
+    const workerUrl = `${origin}/api/worker/process-job?jobId=${jobId}`
 
     console.log("[v0] Triggering worker at:", workerUrl)
 
