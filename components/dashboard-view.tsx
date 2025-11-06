@@ -646,9 +646,16 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
               <p className="text-gray-600">Actionable steps to increase your presence in AI assistant responses.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {(Array.isArray(recommendations) ? recommendations : []).map((rec: any, index: number) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow">
+                <Card
+                  key={index}
+                  className={`hover:shadow-lg transition-shadow ${
+                    recommendations.length % 2 === 1 && index === recommendations.length - 1
+                      ? "md:col-span-2 lg:col-span-1"
+                      : ""
+                  }`}
+                >
                   <CardHeader>
                     <div className="flex items-start justify-between gap-4">
                       <CardTitle className="text-lg font-medium text-[#30594B]">{rec?.title}</CardTitle>
