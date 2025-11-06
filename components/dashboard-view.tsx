@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { useState, useEffect, useRef } from "react"
+import { Navigation } from "@/components/navigation"
 import {
   CheckCircle2,
   XCircle,
@@ -253,8 +254,11 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
 
     return (
       <div className="min-h-screen bg-[#FAFAF8]">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
+        {/* Navigation Component */}
+        <Navigation onLogoClick={onBack} />
+
+        {/* Header with page title */}
+        <div className="bg-white border-b border-gray-200 px-6 py-4 mt-20">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-serif text-[#30594B]">AI Visibility Report</h1>
