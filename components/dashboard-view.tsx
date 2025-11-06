@@ -599,7 +599,7 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                 Contact Featherstone Intelligence to develop a customized strategy for increasing your presence in AI
                 assistant responses.
               </p>
-              <div className="flex gap-4 justify-center pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
                 <Button size="lg" className="bg-[#30594B] hover:bg-[#30594B]/90">
                   Schedule Consultation
                 </Button>

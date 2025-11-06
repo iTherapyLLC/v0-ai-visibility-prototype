@@ -6,6 +6,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Navigation } from "@/components/navigation" // Import Navigation component
 
 interface LandingViewProps {
   onAuditComplete: (auditId: string, url: string) => void
@@ -73,6 +74,8 @@ export function LandingView({ onAuditComplete }: LandingViewProps) {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <Navigation />
+
       <div className="absolute inset-0 z-0">
         <img
           src="/muted-desaturated-vineyard-landscape-rolling-hills.jpg"

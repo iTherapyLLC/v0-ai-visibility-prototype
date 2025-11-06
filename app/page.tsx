@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { LandingView } from "@/components/landing-view"
 import { DashboardView } from "@/components/dashboard-view"
 
@@ -38,26 +39,17 @@ export default function Home() {
       {view === "loading" && (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/5">
           <div className="text-center space-y-6">
-            <img
-              src="/images/featherstone-logo.png"
-              alt="Featherstone Intelligence"
-              style={{
-                width: "128px",
-                height: "auto",
-                margin: "0 auto",
-                marginBottom: "6rem", // Increased from 4.25rem to 6rem to lower text and prevent interference with animation
-                display: "block",
-                animation: "spin 3s linear infinite",
-              }}
-            />
-            <style>{`
-              @keyframes spin {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
-              }
-            `}</style>
+            <div className="relative w-32 h-32 mx-auto animate-spin" style={{ animationDuration: "3s" }}>
+              <Image
+                src="/images/featherstone-logo.png"
+                alt="Featherstone Intelligence"
+                width={128}
+                height={128}
+                className="w-full h-full object-contain"
+              />
+            </div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-semibold text-foreground">Analyzing AI Visibility…</h2>
+              <h2 className="text-2xl font-serif font-semibold text-foreground">ANALYZING AI VISIBILITY...</h2>
               <p className="text-muted-foreground">Scanning ChatGPT, Perplexity, and Gemini</p>
             </div>
           </div>

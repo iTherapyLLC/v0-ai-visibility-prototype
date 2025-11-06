@@ -1,10 +1,16 @@
 "use client"
 
+import type React from "react"
+
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 
-export function Navigation() {
+interface NavigationProps {
+  onLogoClick?: () => void
+}
+
+export function Navigation({ onLogoClick }: NavigationProps = {}) {
   const pathname = usePathname()
 
   const isActive = (path: string) => {
@@ -14,12 +20,23 @@ export function Navigation() {
     return pathname.startsWith(path)
   }
 
+  const handleLogoClick = (e: React.MouseEvent) => {
+    if (onLogoClick) {
+      e.preventDefault()
+      onLogoClick()
+    }
+  }
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-muted">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20 py-4">
           {/* Logo - Icon with text */}
-          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer">
+          <Link
+            href="/"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
+            onClick={handleLogoClick}
+          >
             <div className="rounded-full border-2 border-muted p-2 bg-white">
               <Image
                 src="/images/featherstone-logo.png"
@@ -30,7 +47,7 @@ export function Navigation() {
                 className="h-10 w-10 object-contain"
               />
             </div>
-            <span className="font-serif text-xl font-semibold text-foreground tracking-wide hidden sm:block">
+            <span className="font-serif text-xl font-semibold text-foreground tracking-wide hidden sm:block uppercase">
               Featherstone Intelligence
             </span>
           </Link>
