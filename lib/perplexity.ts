@@ -376,23 +376,42 @@ export function calculateOverallScores(results: VisibilityTestResult[]) {
     }
   }
 
-  const mentionCount = results.filter((r) => r.analysis.mentioned).length
+  const mentionedResults = results.filter((r) => r.analysis.mentioned)
+  const mentionCount = mentionedResults.length
 
-  // Citation Presence Score (0-25)
+  // CRITICAL: If nothing was mentioned, all scores must be 0
+  if (mentionCount === 0) {
+    return {
+      overall: 0,
+      citation: 0,
+      position: 0,
+      sentiment: 0,
+      frequency: 0,
+    }
+  }
+
+  // Citation Presence Score (0-25) - based on total tests
   const citationScore = Math.round((mentionCount / totalTests) * 25)
 
-  // Position Score (0-35)
-  const positions = results.filter((r) => r.analysis.position !== null).map((r) => r.analysis.position!)
-  const avgPosition = positions.length > 0 ? positions.reduce((sum, p) => sum + p, 0) / positions.length : 0
-  const positionScore = avgPosition > 0 ? Math.max(0, Math.round(35 - avgPosition * 5)) : 0
-
-  // Sentiment Score (0-25)
-  const sentimentScores = { positive: 25, neutral: 15, negative: 5, not_mentioned: 0 }
-  const avgSentiment = results.reduce((sum, r) => sum + sentimentScores[r.analysis.sentiment], 0) / totalTests
-  const sentimentScore = Math.round(avgSentiment)
-
-  // Frequency Score (0-15)
+  // Frequency Score (0-15) - based on total tests
   const frequencyScore = Math.round((mentionCount / totalTests) * 15)
+
+  // Position Score (0-35) - ONLY from mentioned results
+  const positions = mentionedResults
+    .filter((r) => r.analysis.position !== null)
+    .map((r) => r.analysis.position!)
+  
+  const avgPosition = positions.length > 0 
+    ? positions.reduce((sum, p) => sum + p, 0) / positions.length 
+    : 999 // Default to worst position if no valid positions
+  
+  const positionScore = Math.max(0, Math.round(35 - avgPosition * 5))
+
+  // Sentiment Score (0-25) - ONLY from mentioned results
+  const sentimentScores = { positive: 25, neutral: 15, negative: 5, not_mentioned: 0 }
+  const avgSentiment = 
+    mentionedResults.reduce((sum, r) => sum + sentimentScores[r.analysis.sentiment], 0) / mentionCount
+  const sentimentScore = Math.round(avgSentiment)
 
   return {
     overall: citationScore + positionScore + sentimentScore + frequencyScore,
