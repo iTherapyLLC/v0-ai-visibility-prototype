@@ -663,7 +663,7 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
           }}
         />
         <div className="space-y-4">
-          <p className="text-xl font-medium text-foreground">ANALYZING AI VISIBILITY...</p>
+          <p className="text-xl font-serif font-semibold text-foreground">ANALYZING AI VISIBILITY...</p>
           {job && job.status === "processing" && (
             <>
               <p className="text-sm text-muted-foreground">
