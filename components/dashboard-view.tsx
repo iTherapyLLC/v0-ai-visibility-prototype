@@ -232,6 +232,26 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
     overallScore: auditData?.overallScore,
   })
 
+  if (auditData?.status === "completed") {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="p-8 text-center max-w-2xl">
+          <h2 className="text-2xl font-semibold mb-4 text-[#30594B]">
+            Audit completed for {auditData.website_url || websiteUrl}
+          </h2>
+          <p className="text-gray-600 text-lg mb-6">
+            {auditData.overallScore === 0
+              ? "No mentions were detected in AI results (0/10 prompts)."
+              : `Overall AI Visibility Score: ${auditData.overallScore}/100`}
+          </p>
+          <Button className="mt-6 bg-[#30594B] hover:bg-[#30594B]/90" onClick={() => window.location.reload()}>
+            Run Another Audit
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   if ((isLoading || isProcessing) && !auditData) {
     console.log("[Dashboard] RETURNING loading state")
 
