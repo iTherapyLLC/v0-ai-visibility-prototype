@@ -48,14 +48,10 @@ async function runJob(jobId: string) {
 
       await sql`
         INSERT INTO ai_responses (
-          id, audit_id, platform, prompt, category, response,
-          mentioned, position, sentiment, citations, citation_sources,
-          competitors, context, detail_score, created_at
+          id, audit_id, prompt, response, mentioned, position, sentiment
         ) VALUES (
-          ${generateId()}, ${auditId}, 'perplexity', ${r.prompt}, ${r.category}, ${r.response},
-          ${r.analysis.mentioned}, ${r.analysis.position}, ${r.analysis.sentiment},
-          ${JSON.stringify(r.citations)}, ${JSON.stringify(r.analysis.citationSources)},
-          ${JSON.stringify(r.analysis.competitors)}, ${r.analysis.context}, ${r.detailScore}, NOW()
+          ${generateId()}, ${auditId}, ${r.prompt}, ${r.response},
+          ${r.analysis.mentioned}, ${r.analysis.position}, ${r.analysis.sentiment}
         )
       `
 
@@ -70,6 +66,7 @@ async function runJob(jobId: string) {
   }
 
   const scores = calculateOverallScores(results)
+  
   await sql`
     UPDATE audits SET
       status='completed',
@@ -77,8 +74,7 @@ async function runJob(jobId: string) {
       citation_score=${scores.citation},
       position_score=${scores.position},
       sentiment_score=${scores.sentiment},
-      frequency_score=${scores.frequency},
-      completed_at=NOW()
+      frequency_score=${scores.frequency}
     WHERE id=${auditId}
   `
 

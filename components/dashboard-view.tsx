@@ -6,18 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { useState, useEffect, useRef } from "react"
 import { Navigation } from "@/components/navigation"
-import {
-  CheckCircle2,
-  XCircle,
-  TrendingUp,
-  Target,
-  Lightbulb,
-  Award,
-  MapPin,
-  Heart,
-  Repeat,
-  RefreshCw,
-} from "lucide-react"
+import { CheckCircle2, XCircle, TrendingUp, Target, Lightbulb, Award, MapPin, Heart, Repeat, RefreshCw } from 'lucide-react'
 
 interface DashboardViewProps {
   auditId: string
@@ -171,22 +160,26 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
   // 🚦 If timed out, show refresh button
   if (timedOut) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center space-y-6 max-w-md">
-          <div className="space-y-2">
-            <p className="text-lg font-medium text-gray-900">Audit is taking longer than expected</p>
-            <p className="text-sm text-gray-600">
-              The processing may still be running in the background. Click refresh to check again.
-            </p>
-          </div>
-          <div className="flex gap-3 justify-center">
-            <Button onClick={handleRefreshResults} className="gap-2">
-              <RefreshCw className="w-4 h-4" />
-              Refresh Results
-            </Button>
-            <Button onClick={onBack} variant="outline">
-              Back to Home
-            </Button>
+      <div className="min-h-screen bg-white">
+        <Navigation onLogoClick={onBack} />
+        
+        <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 80px)' }}>
+          <div className="text-center space-y-6 max-w-md">
+            <div className="space-y-2">
+              <p className="text-lg font-medium text-gray-900">Audit is taking longer than expected</p>
+              <p className="text-sm text-gray-600">
+                The processing may still be running in the background. Click refresh to check again.
+              </p>
+            </div>
+            <div className="flex gap-3 justify-center">
+              <Button onClick={handleRefreshResults} className="gap-2">
+                <RefreshCw className="w-4 h-4" />
+                Refresh Results
+              </Button>
+              <Button onClick={onBack} variant="outline">
+                Back to Home
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -710,22 +703,26 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
   // If the audit failed, show error
   if (auditStatus === "failed" || jobStatus === "failed") {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center space-y-6 max-w-md">
-          <div className="space-y-2">
-            <p className="text-lg font-medium text-gray-900">Audit failed</p>
-            <p className="text-sm text-gray-600">
-              {error || "An error occurred while processing your audit. Please try again."}
-            </p>
-          </div>
-          <div className="flex gap-3 justify-center">
-            <Button onClick={handleRefreshResults} className="gap-2">
-              <RefreshCw className="w-4 h-4" />
-              Retry
-            </Button>
-            <Button onClick={onBack} variant="outline">
-              Back to Home
-            </Button>
+      <div className="min-h-screen bg-white">
+        <Navigation onLogoClick={onBack} />
+        
+        <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 80px)' }}>
+          <div className="text-center space-y-6 max-w-md">
+            <div className="space-y-2">
+              <p className="text-lg font-medium text-gray-900">Audit failed</p>
+              <p className="text-sm text-gray-600">
+                {error || "An error occurred while processing your audit. Please try again."}
+              </p>
+            </div>
+            <div className="flex gap-3 justify-center">
+              <Button onClick={handleRefreshResults} className="gap-2">
+                <RefreshCw className="w-4 h-4" />
+                Retry
+              </Button>
+              <Button onClick={onBack} variant="outline">
+                Back to Home
+              </Button>
+            </div>
           </div>
         </div>
       </div>

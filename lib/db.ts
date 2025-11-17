@@ -14,7 +14,6 @@ export interface Audit {
   status: "processing" | "completed" | "failed"
   overall_score: number | null
   created_at: string
-  completed_at: string | null
   schema_health_score: number | null
   speed_performance_score: number | null
   citation_count: number | null
@@ -27,26 +26,12 @@ export interface Audit {
 export interface AIResponse {
   id: string
   audit_id: string
-  platform: "chatgpt" | "perplexity" | "gemini"
   prompt: string
   response: string
   mentioned: boolean
-  competitors: string[]
-  created_at: string
-  category: string
   position: number | null
   sentiment: "positive" | "neutral" | "negative" | "not_mentioned"
-  citations: string[]
-  citation_sources: {
-    reddit: number
-    reviewSites: number
-    ownedWebsite: number
-    news: number
-    other: number
-  }
-  context: string
-  detail_score: number
-  mention_count: number
+  created_at: string
 }
 
 export interface Competitor {
