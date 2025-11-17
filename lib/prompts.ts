@@ -5,31 +5,21 @@ export const TEST_PROMPTS = ["Recommend dog-friendly wineries in Napa Valley"]
 
 // Full prompt set available for future use when processing time is optimized
 export const FULL_PROMPT_SET = [
-  "Best wineries in Napa Valley",
-  "Top wine tasting experiences in Napa",
-  "Where to stay for a wine country vacation",
-  "Sustainable wineries in Napa Valley",
-  "Wine tours for couples in Napa",
-  "Family-friendly wineries in Napa",
-  "Best restaurants in Napa wine country",
-  "Luxury wine country hotels",
-  "Napa Valley wedding venues",
-  "Private wine tasting experiences",
-  "Organic wineries in Napa",
-  "Best Cabernet Sauvignon in Napa",
-  "Wine country spa resorts",
-  "Napa Valley bike tours",
-  "Best views in Napa wine country",
-  "Historic wineries in Napa Valley",
-  "Small boutique wineries Napa",
-  "Wine and food pairing experiences",
-  "Napa Valley harvest season activities",
-  "Best time to visit Napa Valley",
-  "Napa Valley day trip itinerary",
-  "Pet-friendly wineries in Napa",
-  "Accessible wineries for wheelchairs",
-  "Napa Valley wine clubs",
-  "Educational wine tours Napa Valley",
+  // Discovery (1-3)
+  { category: 'discovery', text: 'Best wineries in Napa for first-time visitors' },
+  { category: 'discovery', text: 'Top Napa wineries for cabernet sauvignon' },
+  { category: 'discovery', text: 'Wineries with food pairings in Napa Valley' },
+  
+  // Experience (4-7)
+  { category: 'experience', text: 'Family-friendly wineries in Napa' },
+  { category: 'experience', text: 'Romantic wineries in Napa for couples' },
+  { category: 'experience', text: 'Best value wine tasting in Napa Valley' },
+  { category: 'experience', text: 'Historic Napa Valley wineries to visit' },
+  
+  // Practical (8-10)
+  { category: 'practical', text: 'Napa wineries that don\'t require reservations' },
+  { category: 'practical', text: 'Small boutique wineries in Napa' },
+  { category: 'practical', text: 'Napa wineries with beautiful architecture' },
 ]
 
 // Extract domain from URL for mention checking
