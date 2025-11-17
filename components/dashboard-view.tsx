@@ -16,21 +16,29 @@ interface DashboardViewProps {
 }
 
 function extractCompetitorsFromResponses(prompts: any[], websiteUrl: string) {
+  if (!websiteUrl || typeof websiteUrl !== 'string') {
+    console.log('[v0 Debug] extractCompetitors received invalid websiteUrl:', typeof websiteUrl)
+    return []
+  }
+  
   // Extract business name from URL for filtering
   const businessDisplay = websiteUrl.replace(/^https?:\/\/(www\.)?/, '').split('.')[0]
-  const businessNorm = businessDisplay?.toLowerCase().replace(/[-_]/g, '') ?? ''
+  const businessNorm = typeof businessDisplay === 'string' ? businessDisplay.toLowerCase().replace(/[-_]/g, '') : ''
   
   const competitorMentions = new Map<string, { count: number, positions: number[] }>()
   
   prompts.forEach((prompt) => {
-    if (!prompt?.response) return
+    if (!prompt?.response || typeof prompt.response !== 'string') return
     
     // Extract winery names using the same pattern as perplexity.ts
     const wineryPattern = /\b[A-Z][a-zA-Z\s&''-]+?(Vineyard|Vineyards|Winery|Wineries|Estate|Cellars|Wines)\b/g
     const candidates = Array.from(new Set(prompt.response.match(wineryPattern) || []))
     
     candidates.forEach((name, index) => {
-      if (!name || typeof name !== 'string') return
+      if (!name || typeof name !== 'string') {
+        console.log('[v0 Debug] Skipping non-string candidate:', typeof name)
+        return
+      }
       const normalized = name.toLowerCase().replace(/[^a-z0-9]/g, '')
       // Skip if it's the business itself
       if (normalized.includes(businessNorm) || businessNorm.includes(normalized)) {
@@ -60,17 +68,22 @@ function extractCompetitorsFromResponses(prompts: any[], websiteUrl: string) {
 }
 
 function extractContextQuotes(prompts: any[], websiteUrl: string) {
+  if (!websiteUrl || typeof websiteUrl !== 'string') {
+    console.log('[v0 Debug] extractContextQuotes received invalid websiteUrl:', typeof websiteUrl)
+    return []
+  }
+  
   // Extract business name from URL for matching
   const businessDisplay = websiteUrl.replace(/^https?:\/\/(www\.)?/, '').split('.')[0]
-  const businessNorm = businessDisplay?.toLowerCase().replace(/[-_]/g, '') ?? ''
+  const businessNorm = typeof businessDisplay === 'string' ? businessDisplay.toLowerCase().replace(/[-_]/g, '') : ''
   
   const quotes: string[] = []
   
   prompts.forEach((prompt) => {
-    if (!prompt?.analysis?.mentioned || !prompt?.response) return
+    if (!prompt?.analysis?.mentioned || !prompt?.response || typeof prompt.response !== 'string') return
     
     // Split response into sentences
-    const sentences = prompt.response.split(/[.!?]+/).filter((s: string) => s.trim().length > 0)
+    const sentences = prompt.response.split(/[.!?]+/).filter((s: string) => s && typeof s === 'string' && s.trim().length > 0)
     
     // Find sentences that mention the business
     for (const sentence of sentences) {
@@ -92,6 +105,11 @@ function extractContextQuotes(prompts: any[], websiteUrl: string) {
 }
 
 function highlightSentimentKeywords(text: string) {
+  if (!text || typeof text !== 'string') {
+    console.log('[v0 Debug] highlightSentimentKeywords received non-string:', typeof text)
+    return [{ text: '', type: 'neutral' as const }]
+  }
+  
   const positiveWords = ['best', 'excellent', 'stunning', 'award-winning', 'exceptional', 'romantic', 'beautiful', 'renowned', 'famous', 'elegant', 'premium', 'top-rated', 'celebrated', 'outstanding', 'spectacular']
   const negativeWords = ['avoid', 'disappointing', 'overpriced', 'mediocre', 'underwhelming', 'poor', 'worst', 'limited', 'lacking']
   
@@ -125,6 +143,11 @@ function extractCitationSourcesFromResponses(prompts: any[], websiteUrl: string)
     other: 0,
   }
 
+  if (!websiteUrl || typeof websiteUrl !== 'string') {
+    console.log('[v0 Debug] extractCitationSources received invalid websiteUrl:', typeof websiteUrl)
+    return citationSources
+  }
+
   // Extract domain from website URL for comparison
   let websiteDomain = ''
   try {
@@ -137,9 +160,9 @@ function extractCitationSourcesFromResponses(prompts: any[], websiteUrl: string)
   // distribution based on mention patterns in the response text
   // In a real implementation, this would use the actual citations array
   prompts.forEach((prompt) => {
-    if (!prompt?.response) return
+    if (!prompt?.response || typeof prompt.response !== 'string') return
     
-    const response = (prompt.response || '').toLowerCase()
+    const response = prompt.response.toLowerCase()
     
     // Count source mentions in the response
     if (response.includes('reddit') || response.includes('r/')) {
@@ -311,7 +334,7 @@ function generateDynamicRecommendations(audit: any, citationSources: any, totalP
     recommendations.push({
       title: 'Optimize for Featured Snippets',
       description: 'Structure your website content to answer specific questions clearly, using headers and bullet points that AI can easily parse.',
-      reason: `You\'re in the mix but not at the top (Position Score: ${positionScore}/35). Better content structure can move you to #1-3 positions.`,
+      reason: `You're in the mix but not at the top (Position Score: ${positionScore}/35). Better content structure can move you to #1-3 positions.`,
       impact: 'Could improve Position Score by 8-12 points',
       timeEstimate: '3-4 hours',
       priority: 'medium'

@@ -145,19 +145,29 @@ export async function testVisibilityWithPerplexity(
 
 // Helper functions for improved mention detection
 function norm(s: string): string {
-  if (!s || typeof s !== 'string') return ''
+  console.log('[v0 Debug] norm() input type:', typeof s, 'value:', s)
+  if (!s || typeof s !== 'string') {
+    console.log('[v0 Debug] norm() received non-string, returning empty string')
+    return ''
+  }
   return s.toLowerCase().replace(/[^a-z0-9]/g, "") // remove spaces, punctuation
 }
 
 // Derive a display name from the domain for matching (no TLD)
 function nameFromUrl(websiteUrl: string): string {
+  console.log('[v0 Debug] nameFromUrl() input type:', typeof websiteUrl, 'value:', websiteUrl)
+  if (!websiteUrl || typeof websiteUrl !== 'string') {
+    console.log('[v0 Debug] nameFromUrl() received non-string URL')
+    return ''
+  }
   try {
     const host = new URL(websiteUrl).hostname.replace(/^www\./, "")
     // take the left-most label (before first dot)
     const left = host.split(".")[0] // 'robertmondaviwinery'
     // replace dashes/underscores with spaces (handles e.g. 'robert-mondavi-winery')
     return left.replace(/[-_]+/g, " ").trim() // 'robertmondaviwinery' -> unchanged; dash cases become spaced
-  } catch {
+  } catch (e) {
+    console.error('[v0 Debug] nameFromUrl() URL parsing error:', e)
     return ""
   }
 }
@@ -168,27 +178,49 @@ function analyzeResponse(
   websiteUrl: string,
   citations: string[],
 ): VisibilityAnalysis {
-  const businessDisplay = nameFromUrl(websiteUrl) // 'robertmondaviwinery'
+  // Ensure inputs are valid strings
+  const safeAiResponse = typeof aiResponse === 'string' ? aiResponse : ''
+  const safeBusinessName = typeof businessName === 'string' ? businessName : ''
+  const safeWebsiteUrl = typeof websiteUrl === 'string' ? websiteUrl : ''
+  const safeCitations = Array.isArray(citations) ? citations : []
+
+  const businessDisplay = nameFromUrl(safeWebsiteUrl) // 'robertmondaviwinery'
   const bizNorm = norm(businessDisplay) // 'robertmondaviwinery'
-  const responseNorm = norm(aiResponse) // whole response normalized
+  const responseNorm = norm(safeAiResponse) // whole response normalized
+
+  console.log('[v0 Debug] Normalized values:', { businessDisplay, bizNorm, responseNormLength: responseNorm.length })
 
   // 1) Raw mention check (handles domain form vs spaced form)
   let mentioned = responseNorm.includes(bizNorm)
 
   // 2) Extract candidate winery names from the response (Title-cased + common suffixes)
   const wineryPattern = /\b[A-Z][a-zA-Z\s&''-]+?(Vineyard|Vineyards|Winery|Wineries|Estate|Cellars|Wines)\b/g
-  const candidates = Array.from(new Set(aiResponse.match(wineryPattern) || []))
+  const candidates = Array.from(new Set(safeAiResponse.match(wineryPattern) || []))
+
+  console.log('[v0 Debug] Found candidates:', candidates.length, 'first few:', candidates.slice(0, 3))
 
   // 3) If not found via raw substring, compare normalized candidates
   if (!mentioned) {
-    mentioned = candidates.some((c) => norm(c).includes(bizNorm) || bizNorm.includes(norm(c)))
+    mentioned = candidates.some((c) => {
+      if (typeof c !== 'string') {
+        console.log('[v0 Debug] Candidate is not a string:', typeof c, c)
+        return false
+      }
+      const cNorm = norm(c)
+      return cNorm.includes(bizNorm) || bizNorm.includes(cNorm)
+    })
   }
 
   // 4) Compute position using normalized comparison against the ordered unique candidates list
   let position: number | null = null
   if (mentioned && candidates.length) {
     for (let i = 0; i < candidates.length; i++) {
-      const cNorm = norm(candidates[i])
+      const candidate = candidates[i]
+      if (typeof candidate !== 'string') {
+        console.log('[v0 Debug] Skipping non-string candidate at position', i, ':', typeof candidate)
+        continue
+      }
+      const cNorm = norm(candidate)
       if (cNorm.includes(bizNorm) || bizNorm.includes(cNorm)) {
         position = i + 1 // 1-indexed
         break
@@ -201,6 +233,7 @@ function analyzeResponse(
   // Count mentions using normalized comparison
   const mentionCount = mentioned
     ? candidates.filter((c) => {
+        if (typeof c !== 'string') return false
         const cNorm = norm(c)
         return cNorm.includes(bizNorm) || bizNorm.includes(cNorm)
       }).length
@@ -209,6 +242,10 @@ function analyzeResponse(
   // Extract competitors (exclude the target business)
   const competitors = candidates
     .filter((c) => {
+      if (typeof c !== 'string') {
+        console.log('[v0 Debug] Filtering out non-string competitor:', typeof c)
+        return false
+      }
       const cNorm = norm(c)
       return !(cNorm.includes(bizNorm) || bizNorm.includes(cNorm))
     })
@@ -226,11 +263,17 @@ function analyzeResponse(
   }
 
   try {
-    const websiteDomain = new URL(websiteUrl).hostname.replace("www.", "")
+    const websiteDomain = new URL(safeWebsiteUrl).hostname.replace("www.", "")
 
-    citations.forEach((url) => {
+    safeCitations.forEach((url) => {
+      if (!url || typeof url !== 'string') {
+        console.log('[v0 Debug] Skipping non-string citation:', typeof url, url)
+        citationSources.other++
+        return
+      }
+
       try {
-        const urlLower = url?.toLowerCase() ?? ''
+        const urlLower = url.toLowerCase()
         const domain = new URL(url).hostname
 
         if (urlLower.includes("reddit.com")) {
@@ -250,6 +293,7 @@ function analyzeResponse(
           citationSources.other++
         }
       } catch (e) {
+        console.log('[v0 Debug] Error parsing citation URL:', url, e)
         citationSources.other++
       }
     })
@@ -298,8 +342,9 @@ function analyzeResponse(
     else sentiment = "neutral"
 
     // Extract context (sentence containing business name)
-    const sentences = aiResponse.split(/[.!?]+/)
+    const sentences = safeAiResponse.split(/[.!?]+/)
     for (const sentence of sentences) {
+      if (typeof sentence !== 'string') continue
       const sentenceNorm = norm(sentence)
       if (sentenceNorm.includes(bizNorm)) {
         context = sentence.trim()

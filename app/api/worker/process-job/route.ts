@@ -25,9 +25,15 @@ async function runJob(jobId: string) {
   const businessName = extractBusinessName(websiteUrl)
   console.log("[Worker] Start:", { jobId, auditId, businessName })
 
-  const prompts = FULL_PROMPT_SET.slice(0, 10).map((text) => {
+  const prompts = FULL_PROMPT_SET.slice(0, 10).map((p) => {
+    const text = typeof p === 'string' ? p : (p?.text ?? '')
+    if (!text || typeof text !== 'string') {
+      console.log('[v0 Debug] Invalid prompt text:', typeof p, p)
+      return { text: '', category: 'general' }
+    }
+    
     let category = "general"
-    const t = text?.toLowerCase() ?? ''
+    const t = text.toLowerCase()
     if (t.includes("romantic")) category = "occasion"
     else if (t.includes("family")) category = "family"
     else if (t.includes("best") || t.includes("first-time")) category = "discovery"
