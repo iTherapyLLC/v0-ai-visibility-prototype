@@ -145,6 +145,7 @@ export async function testVisibilityWithPerplexity(
 
 // Helper functions for improved mention detection
 function norm(s: string): string {
+  if (!s || typeof s !== 'string') return ''
   return s.toLowerCase().replace(/[^a-z0-9]/g, "") // remove spaces, punctuation
 }
 
@@ -229,7 +230,7 @@ function analyzeResponse(
 
     citations.forEach((url) => {
       try {
-        const urlLower = url.toLowerCase()
+        const urlLower = url?.toLowerCase() ?? ''
         const domain = new URL(url).hostname
 
         if (urlLower.includes("reddit.com")) {

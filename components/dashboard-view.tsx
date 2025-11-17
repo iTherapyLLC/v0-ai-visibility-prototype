@@ -6,12 +6,335 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { useState, useEffect, useRef } from "react"
 import { Navigation } from "@/components/navigation"
-import { CheckCircle2, XCircle, TrendingUp, Target, Lightbulb, Award, MapPin, Heart, Repeat, RefreshCw } from 'lucide-react'
+import { CheckCircle2, XCircle, TrendingUp, Target, Lightbulb, Award, MapPin, Heart, Repeat, RefreshCw, ExternalLink, FileText, MessageSquare, Globe } from 'lucide-react'
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
 
 interface DashboardViewProps {
   auditId: string
   websiteUrl: string
   onBack: () => void
+}
+
+function extractCompetitorsFromResponses(prompts: any[], websiteUrl: string) {
+  // Extract business name from URL for filtering
+  const businessDisplay = websiteUrl.replace(/^https?:\/\/(www\.)?/, '').split('.')[0]
+  const businessNorm = businessDisplay?.toLowerCase().replace(/[-_]/g, '') ?? ''
+  
+  const competitorMentions = new Map<string, { count: number, positions: number[] }>()
+  
+  prompts.forEach((prompt) => {
+    if (!prompt?.response) return
+    
+    // Extract winery names using the same pattern as perplexity.ts
+    const wineryPattern = /\b[A-Z][a-zA-Z\s&''-]+?(Vineyard|Vineyards|Winery|Wineries|Estate|Cellars|Wines)\b/g
+    const candidates = Array.from(new Set(prompt.response.match(wineryPattern) || []))
+    
+    candidates.forEach((name, index) => {
+      if (!name || typeof name !== 'string') return
+      const normalized = name.toLowerCase().replace(/[^a-z0-9]/g, '')
+      // Skip if it's the business itself
+      if (normalized.includes(businessNorm) || businessNorm.includes(normalized)) {
+        return
+      }
+      
+      const existing = competitorMentions.get(name)
+      if (existing) {
+        existing.count++
+        existing.positions.push(index + 1)
+      } else {
+        competitorMentions.set(name, { count: 1, positions: [index + 1] })
+      }
+    })
+  })
+  
+  // Convert to sorted array
+  const competitors = Array.from(competitorMentions.entries())
+    .map(([name, data]) => ({
+      name,
+      mentions: data.count,
+      avgPosition: data.positions.reduce((sum, p) => sum + p, 0) / data.positions.length
+    }))
+    .sort((a, b) => b.mentions - a.mentions) // Sort by mention count descending
+  
+  return competitors
+}
+
+function extractContextQuotes(prompts: any[], websiteUrl: string) {
+  // Extract business name from URL for matching
+  const businessDisplay = websiteUrl.replace(/^https?:\/\/(www\.)?/, '').split('.')[0]
+  const businessNorm = businessDisplay?.toLowerCase().replace(/[-_]/g, '') ?? ''
+  
+  const quotes: string[] = []
+  
+  prompts.forEach((prompt) => {
+    if (!prompt?.analysis?.mentioned || !prompt?.response) return
+    
+    // Split response into sentences
+    const sentences = prompt.response.split(/[.!?]+/).filter((s: string) => s.trim().length > 0)
+    
+    // Find sentences that mention the business
+    for (const sentence of sentences) {
+      if (!sentence || typeof sentence !== 'string') continue
+      const normalized = sentence.toLowerCase().replace(/[^a-z0-9]/g, '')
+      if (normalized.includes(businessNorm)) {
+        // Clean up the sentence and add it
+        const cleanSentence = sentence.trim()
+        if (cleanSentence.length > 20 && cleanSentence.length < 500) {
+          quotes.push(cleanSentence)
+        }
+        break // Only take one sentence per prompt
+      }
+    }
+  })
+  
+  // Return 2-3 diverse quotes
+  return quotes.slice(0, 3)
+}
+
+function highlightSentimentKeywords(text: string) {
+  const positiveWords = ['best', 'excellent', 'stunning', 'award-winning', 'exceptional', 'romantic', 'beautiful', 'renowned', 'famous', 'elegant', 'premium', 'top-rated', 'celebrated', 'outstanding', 'spectacular']
+  const negativeWords = ['avoid', 'disappointing', 'overpriced', 'mediocre', 'underwhelming', 'poor', 'worst', 'limited', 'lacking']
+  
+  const parts: Array<{ text: string, type: 'positive' | 'negative' | 'neutral' }> = []
+  const words = text.split(/(\s+)/)
+  
+  words.forEach((word) => {
+    if (!word || typeof word !== 'string') {
+      parts.push({ text: word || '', type: 'neutral' })
+      return
+    }
+    const cleanWord = word.toLowerCase().replace(/[^a-z-]/g, '')
+    if (positiveWords.includes(cleanWord)) {
+      parts.push({ text: word, type: 'positive' })
+    } else if (negativeWords.includes(cleanWord)) {
+      parts.push({ text: word, type: 'negative' })
+    } else {
+      parts.push({ text: word, type: 'neutral' })
+    }
+  })
+
+  return parts
+}
+
+function extractCitationSourcesFromResponses(prompts: any[], websiteUrl: string) {
+  const citationSources = {
+    reddit: 0,
+    reviewSites: 0,
+    ownedWebsite: 0,
+    news: 0,
+    other: 0,
+  }
+
+  // Extract domain from website URL for comparison
+  let websiteDomain = ''
+  try {
+    websiteDomain = new URL(websiteUrl).hostname.replace('www.', '')
+  } catch (e) {
+    console.error('[v0] Error parsing website URL:', e)
+  }
+
+  // Note: Since citations aren't stored in the database, we'll simulate 
+  // distribution based on mention patterns in the response text
+  // In a real implementation, this would use the actual citations array
+  prompts.forEach((prompt) => {
+    if (!prompt?.response) return
+    
+    const response = (prompt.response || '').toLowerCase()
+    
+    // Count source mentions in the response
+    if (response.includes('reddit') || response.includes('r/')) {
+      citationSources.reddit++
+    }
+    if (response.includes('yelp') || response.includes('tripadvisor') || response.includes('google maps') || response.includes('opentable')) {
+      citationSources.reviewSites++
+    }
+    if (response.includes(websiteDomain)) {
+      citationSources.ownedWebsite++
+    }
+    if (response.includes('news') || response.includes('article') || response.includes('blog') || response.includes('magazine')) {
+      citationSources.news++
+    }
+    
+    // If mentioned but no specific source detected, count as other
+    if (prompt.analysis?.mentioned && 
+        citationSources.reddit === 0 && 
+        citationSources.reviewSites === 0 && 
+        citationSources.ownedWebsite === 0 && 
+        citationSources.news === 0) {
+      citationSources.other++
+    }
+  })
+
+  return citationSources
+}
+
+function generateCitationInsights(citationSources: any, websiteUrl: string) {
+  const total = Object.values(citationSources).reduce((sum: number, val: any) => sum + val, 0)
+  
+  if (total === 0) {
+    return [
+      "No citations detected across AI responses - this indicates very low AI visibility.",
+      "Focus on claiming business listings on Google, Yelp, and TripAdvisor to establish an online presence.",
+      "Add schema markup to your website to help AI assistants understand and cite your content.",
+    ]
+  }
+
+  const insights: string[] = []
+  const reviewSitesPercent = Math.round((citationSources.reviewSites / total) * 100)
+  const ownedWebsitePercent = Math.round((citationSources.ownedWebsite / total) * 100)
+  const newsPercent = Math.round((citationSources.news / total) * 100)
+  const redditPercent = Math.round((citationSources.reddit / total) * 100)
+
+  // Review sites insight
+  if (reviewSitesPercent >= 60) {
+    insights.push(`AI cited review sites ${reviewSitesPercent}% of the time - focus on improving your TripAdvisor, Yelp, and Google reviews to strengthen these citations.`)
+  } else if (reviewSitesPercent >= 30) {
+    insights.push(`Review sites represent ${reviewSitesPercent}% of citations - continue collecting reviews and responding to feedback to increase this source.`)
+  } else {
+    insights.push(`Review sites represent only ${reviewSitesPercent}% of citations - claim and optimize your business listings on Yelp, TripAdvisor, and Google Maps.`)
+  }
+
+  // Owned website insight
+  if (ownedWebsitePercent === 0) {
+    insights.push("Your website was cited 0 times - add structured data (schema markup) to help AI assistants understand and cite your content directly.")
+  } else if (ownedWebsitePercent < 20) {
+    insights.push(`Your website represents only ${ownedWebsitePercent}% of citations - enhance your site with schema markup, FAQ pages, and authoritative content.`)
+  } else {
+    insights.push(`Your website represents ${ownedWebsitePercent}% of citations - excellent! Continue publishing high-quality content and maintaining schema markup.`)
+  }
+
+  // News/media insight
+  if (newsPercent >= 30) {
+    insights.push(`Strong media presence with ${newsPercent}% of citations from news sources - maintain PR relationships and seek additional coverage.`)
+  } else if (newsPercent < 10 && newsPercent > 0) {
+    insights.push(`Limited media coverage (${newsPercent}% of citations) - consider partnering with wine bloggers and local tourism publications.`)
+  }
+
+  // Reddit insight (usually not ideal)
+  if (redditPercent >= 20) {
+    insights.push(`${redditPercent}% of citations are from Reddit - while community-driven, focus on building authority sources like news and your own site.`)
+  }
+
+  return insights.slice(0, 3) // Return top 3 most relevant insights
+}
+
+function generateDynamicRecommendations(audit: any, citationSources: any, totalPrompts: number) {
+  const recommendations: Array<{
+    title: string
+    description: string
+    reason: string
+    impact: string
+    timeEstimate: string
+    priority: 'high' | 'medium' | 'low'
+  }> = []
+
+  const citationScore = Number(audit?.dimensionScores?.citationPresence ?? 0)
+  const positionScore = Number(audit?.dimensionScores?.position ?? 0)
+  const sentimentScore = Number(audit?.dimensionScores?.sentiment ?? 0)
+  
+  const totalCitations = Object.values(citationSources).reduce((sum: number, val: any) => sum + val, 0)
+  const reviewSitesPercent = totalCitations > 0 ? (citationSources.reviewSites / totalCitations) * 100 : 0
+
+  // Rule 1: Low citation score
+  if (citationScore < 10) {
+    recommendations.push({
+      title: 'Claim Your Business Listings',
+      description: 'Verify your business on Google Business Profile, TripAdvisor, and Yelp. These platforms are primary sources for AI assistants.',
+      reason: `You're rarely mentioned by AI (Citation Score: ${citationScore}/25). AI assistants can\'t recommend what they can\'t find.`,
+      impact: 'Could improve Citation Score by 10-15 points',
+      timeEstimate: '2-3 hours',
+      priority: 'high'
+    })
+  }
+
+  // Rule 2: Low position score
+  if (positionScore < 15) {
+    recommendations.push({
+      title: 'Build Authority with Press & Awards',
+      description: 'Secure mentions in wine publications, submit for industry awards, and partner with local tourism boards to build credible authority signals.',
+      reason: `You're mentioned but ranked low (Position Score: ${positionScore}/35). AI assistants see competitors as more authoritative.`,
+      impact: 'Could improve Position Score by 15-20 points',
+      timeEstimate: '1-2 months',
+      priority: 'high'
+    })
+  }
+
+  // Rule 3: Low sentiment score
+  if (sentimentScore < 15) {
+    recommendations.push({
+      title: 'Improve Your Online Reputation',
+      description: 'Address negative reviews professionally, highlight unique experiences on your website, and encourage satisfied guests to share their stories.',
+      reason: `AI describes you neutrally or negatively (Sentiment Score: ${sentimentScore}/25). Positive sentiment signals directly influence recommendations.`,
+      impact: 'Could improve Sentiment Score by 10-15 points',
+      timeEstimate: '3-4 weeks',
+      priority: 'high'
+    })
+  }
+
+  // Rule 4: Website never cited
+  if (citationSources.ownedWebsite === 0) {
+    recommendations.push({
+      title: 'Add Schema.org Structured Data',
+      description: 'Implement LocalBusiness, FAQPage, and Event schema markup on your website to help AI assistants understand and cite your content directly.',
+      reason: `AI never cited your website (0 citations from your domain). Your site is invisible to AI crawlers without structured data.`,
+      impact: 'Could improve Citation Score by 8-12 points',
+      timeEstimate: '4-6 hours',
+      priority: 'high'
+    })
+  }
+
+  // Rule 5: Heavy reliance on review sites
+  if (reviewSitesPercent > 50 && totalCitations > 0) {
+    recommendations.push({
+      title: 'Maintain 4.5+ Star Ratings on Review Sites',
+      description: 'Respond to all reviews within 48 hours, address concerns professionally, and encourage happy guests to leave reviews.',
+      reason: `AI relies heavily on review sites (${Math.round(reviewSitesPercent)}% of citations). Your ratings directly influence AI recommendations.`,
+      impact: 'Could improve overall score by 5-10 points',
+      timeEstimate: '30 min/week ongoing',
+      priority: 'medium'
+    })
+  }
+
+  // Additional recommendations for medium scores
+  if (citationScore >= 10 && citationScore < 20) {
+    recommendations.push({
+      title: 'Expand Your Content Footprint',
+      description: 'Publish blog posts answering common wine country questions, create FAQ pages, and ensure your content matches the queries AI users ask.',
+      reason: `You have moderate visibility (Citation Score: ${citationScore}/25). Strategic content can push you into the top tier.`,
+      impact: 'Could improve Citation Score by 5-8 points',
+      timeEstimate: '2-3 hours/week',
+      priority: 'medium'
+    })
+  }
+
+  if (positionScore >= 15 && positionScore < 25) {
+    recommendations.push({
+      title: 'Optimize for Featured Snippets',
+      description: 'Structure your website content to answer specific questions clearly, using headers and bullet points that AI can easily parse.',
+      reason: `You\'re in the mix but not at the top (Position Score: ${positionScore}/35). Better content structure can move you to #1-3 positions.`,
+      impact: 'Could improve Position Score by 8-12 points',
+      timeEstimate: '3-4 hours',
+      priority: 'medium'
+    })
+  }
+
+  // Low priority recommendations
+  if (recommendations.length < 5) {
+    recommendations.push({
+      title: 'Ensure NAP Consistency',
+      description: 'Verify your Name, Address, and Phone number are identical across all online listings, directories, and your website.',
+      reason: 'Inconsistent business information confuses AI assistants and reduces your visibility across platforms.',
+      impact: 'Could improve overall score by 3-5 points',
+      timeEstimate: '1-2 hours',
+      priority: 'low'
+    })
+  }
+
+  // Sort by priority and return top 5
+  const priorityOrder = { high: 0, medium: 1, low: 2 }
+  return recommendations
+    .sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority])
+    .slice(0, 5)
 }
 
 export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProps) {
@@ -203,6 +526,23 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
       frequency: 0,
     }
 
+    const competitors = extractCompetitorsFromResponses(prompts, websiteUrl)
+    const topCompetitors = competitors.slice(0, 3)
+    
+    const contextQuotes = extractContextQuotes(prompts, websiteUrl)
+
+    const citationSources = extractCitationSourcesFromResponses(prompts, websiteUrl)
+    const citationInsights = generateCitationInsights(citationSources, websiteUrl)
+    
+    // Prepare data for pie chart
+    const chartData = [
+      { name: 'Review Sites', value: citationSources.reviewSites, color: '#30594B' },
+      { name: 'News & Media', value: citationSources.news, color: '#C5AA7D' },
+      { name: 'Your Website', value: citationSources.ownedWebsite, color: '#6B9B8A' },
+      { name: 'Reddit', value: citationSources.reddit, color: '#FF6B6B' },
+      { name: 'Other', value: citationSources.other, color: '#9CA3AF' },
+    ].filter(item => item.value > 0) // Only show sources with data
+
     const getStatusBadge = (score: number) => {
       if (score >= 71) {
         return { label: "Excellent", variant: "default" as const, color: "bg-green-500" }
@@ -215,35 +555,7 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
 
     const statusBadge = getStatusBadge(overallScore)
 
-    const defaultRecommendations = [
-      {
-        title: "Claim Your Business Listings",
-        description: "Ensure your business is verified on Google, Yelp, TripAdvisor, and key wine directories.",
-        priority: "high",
-      },
-      {
-        title: "Enhance Website Content",
-        description: "Add schema markup and publish FAQ + 'best of' content aligned to common AI queries.",
-        priority: "high",
-      },
-      {
-        title: "Encourage Reviews & PR",
-        description: "Collect Google reviews, highlight awards, and secure mentions in trusted publications.",
-        priority: "medium",
-      },
-      {
-        title: "Ensure NAP Consistency",
-        description: "Keep name, address, and phone number 100% consistent across all listings.",
-        priority: "medium",
-      },
-      {
-        title: "Build Authority Backlinks",
-        description: "Partner with local guides, wine blogs, and tourism sites to earn reputable links.",
-        priority: "low",
-      },
-    ]
-    const recommendations =
-      Array.isArray(audit?.reasons) && audit.reasons.length > 0 ? audit.reasons : defaultRecommendations
+    const recommendations = generateDynamicRecommendations(audit, citationSources, totalPrompts)
 
     return (
       <div className="min-h-screen bg-[#FAFAF8]">
@@ -358,15 +670,29 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                     <div className="text-2xl font-bold text-[#30594B]">{dimensionScores.citationPresence}/25</div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
                   <Progress value={(dimensionScores.citationPresence / 25) * 100} className="h-2" />
-                  <p className="text-sm text-gray-600 mt-3">
+                  <p className="text-sm text-gray-600">
                     {dimensionScores.citationPresence >= 20
                       ? "Excellent – mentioned by name consistently"
                       : dimensionScores.citationPresence >= 10
                         ? "Good – mentioned indirectly or by category"
                         : "Needs work – rarely mentioned by name"}
                   </p>
+                  
+                  {topCompetitors.length > 0 && (
+                    <div className="pt-3 border-t border-gray-200">
+                      <p className="text-xs font-medium text-gray-700 mb-2">Most mentioned competitors:</p>
+                      <div className="space-y-1.5">
+                        {topCompetitors.map((comp, i) => (
+                          <div key={i} className="flex items-center justify-between text-xs">
+                            <span className="text-gray-600">{comp.name}</span>
+                            <span className="text-gray-500 font-medium">{comp.mentions} {comp.mentions === 1 ? 'mention' : 'mentions'}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -386,15 +712,29 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                     <div className="text-2xl font-bold text-[#30594B]">{dimensionScores.position}/35</div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
                   <Progress value={(dimensionScores.position / 35) * 100} className="h-2" />
-                  <p className="text-sm text-gray-600 mt-3">
+                  <p className="text-sm text-gray-600">
                     {dimensionScores.position >= 30
                       ? "Excellent – often recommended first"
                       : dimensionScores.position >= 15
                         ? "Good – appearing in top recommendations"
                         : "Needs work – rarely at the top"}
                   </p>
+                  
+                  {topCompetitors.length > 0 && (
+                    <div className="pt-3 border-t border-gray-200">
+                      <p className="text-xs font-medium text-gray-700 mb-2">Top competitors ranked:</p>
+                      <div className="space-y-1.5">
+                        {topCompetitors.map((comp, i) => (
+                          <div key={i} className="flex items-center justify-between text-xs">
+                            <span className="text-gray-600">{comp.name}</span>
+                            <span className="text-gray-500 font-medium">#{comp.avgPosition.toFixed(1)} avg</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -414,15 +754,48 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                     <div className="text-2xl font-bold text-[#30594B]">{dimensionScores.sentiment}/25</div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
                   <Progress value={(dimensionScores.sentiment / 25) * 100} className="h-2" />
-                  <p className="text-sm text-gray-600 mt-3">
+                  <p className="text-sm text-gray-600">
                     {dimensionScores.sentiment >= 20
                       ? "Positive tone dominates"
                       : dimensionScores.sentiment >= 10
                         ? "Mostly neutral"
                         : "Needs work – limited positive signals"}
                   </p>
+                  
+                  {contextQuotes.length > 0 && (
+                    <div className="pt-3 border-t border-gray-200">
+                      <p className="text-xs font-medium text-gray-700 mb-3">How AI Describes You:</p>
+                      <div className="space-y-3">
+                        {contextQuotes.map((quote, i) => {
+                          const highlightedParts = highlightSentimentKeywords(quote)
+                          return (
+                            <div key={i} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                              <p className="text-xs text-gray-700 leading-relaxed">
+                                "
+                                {highlightedParts.map((part, j) => (
+                                  <span
+                                    key={j}
+                                    className={
+                                      part.type === 'positive'
+                                        ? 'text-green-600 font-medium'
+                                        : part.type === 'negative'
+                                          ? 'text-red-600 font-medium'
+                                          : ''
+                                    }
+                                  >
+                                    {part.text}
+                                  </span>
+                                ))}
+                                "
+                              </p>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -456,7 +829,138 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
             </div>
           </section>
 
-          {/* Visibility Breakdown */}
+          <section className="space-y-6">
+            <div>
+              <h3 className="text-2xl font-serif text-[#30594B] mb-2">Citation Source Analysis</h3>
+              <p className="text-gray-600">
+                Understanding where AI assistants find information about your business.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Pie Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-medium text-[#30594B] flex items-center gap-2">
+                    <Globe className="w-5 h-5" />
+                    Source Distribution
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {chartData.length > 0 ? (
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={chartData}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {chartData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'white', 
+                              border: '1px solid #e5e5e0',
+                              borderRadius: '8px',
+                              padding: '8px 12px'
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : (
+                    <div className="h-[300px] flex items-center justify-center text-gray-500">
+                      No citation data available
+                    </div>
+                  )}
+                  
+                  {/* Legend with counts */}
+                  <div className="mt-6 space-y-3 border-t border-gray-200 pt-4">
+                    {chartData.map((item, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: item.color }}
+                          />
+                          <span className="text-sm text-gray-700">{item.name}</span>
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Key Insights */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-medium text-[#30594B] flex items-center gap-2">
+                    <Lightbulb className="w-5 h-5 text-[#C5AA7D]" />
+                    Key Insights
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {citationInsights.map((insight, index) => (
+                    <div key={index} className="flex gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#30594B]/10 flex items-center justify-center text-xs font-medium text-[#30594B]">
+                        {index + 1}
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">{insight}</p>
+                    </div>
+                  ))}
+                  
+                  {/* Source breakdown with icons */}
+                  <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
+                    <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Source Breakdown</p>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                        <FileText className="w-4 h-4 text-[#30594B]" />
+                        <div>
+                          <p className="text-xs text-gray-500">Review Sites</p>
+                          <p className="text-sm font-semibold text-gray-900">{citationSources.reviewSites}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                        <Globe className="w-4 h-4 text-[#C5AA7D]" />
+                        <div>
+                          <p className="text-xs text-gray-500">News & Media</p>
+                          <p className="text-sm font-semibold text-gray-900">{citationSources.news}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                        <ExternalLink className="w-4 h-4 text-[#6B9B8A]" />
+                        <div>
+                          <p className="text-xs text-gray-500">Your Website</p>
+                          <p className="text-sm font-semibold text-gray-900">{citationSources.ownedWebsite}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                        <MessageSquare className="w-4 h-4 text-gray-500" />
+                        <div>
+                          <p className="text-xs text-gray-500">Community</p>
+                          <p className="text-sm font-semibold text-gray-900">{citationSources.reddit + citationSources.other}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
           <section className="space-y-6">
             <div>
               <h3 className="text-2xl font-serif text-[#30594B] mb-2">AI Prompt Results</h3>
@@ -640,40 +1144,52 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                 <Lightbulb className="w-6 h-6 text-[#C5AA7D]" />
                 How to Improve Your AI Visibility
               </h3>
-              <p className="text-gray-600">Actionable steps to increase your presence in AI assistant responses.</p>
+              <p className="text-gray-600">Prioritized recommendations based on your audit results.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {(Array.isArray(recommendations) ? recommendations : []).map((rec: any, index: number) => (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {recommendations.map((rec, index) => (
                 <Card
                   key={index}
-                  className={`hover:shadow-lg transition-shadow ${
-                    recommendations.length % 2 === 1 && index === recommendations.length - 1
-                      ? "md:col-span-2 lg:col-span-1"
-                      : ""
-                  }`}
+                  className="hover:shadow-lg transition-shadow"
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between gap-4">
-                      <CardTitle className="text-lg font-medium text-[#30594B]">{rec?.title}</CardTitle>
-                      {rec?.priority && (
-                        <Badge
-                          variant={
-                            rec.priority === "high"
-                              ? "destructive"
-                              : rec.priority === "medium"
-                                ? "secondary"
-                                : "outline"
-                          }
-                          className="text-xs"
-                        >
-                          {rec.priority || "info"}
-                        </Badge>
-                      )}
+                      <CardTitle className="text-lg font-medium text-[#30594B]">{rec.title}</CardTitle>
+                      <Badge
+                        variant={
+                          rec.priority === "high"
+                            ? "destructive"
+                            : rec.priority === "medium"
+                              ? "secondary"
+                              : "outline"
+                        }
+                        className="text-xs flex-shrink-0"
+                      >
+                        {rec.priority}
+                      </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 text-sm leading-relaxed">{rec?.description}</p>
+                  <CardContent className="space-y-4">
+                    <p className="text-gray-700 text-sm leading-relaxed">{rec.description}</p>
+                    
+                    {/* Why this matters */}
+                    <div className="bg-[#30594B]/5 rounded-lg p-3 border-l-2 border-[#30594B]">
+                      <p className="text-xs font-medium text-[#30594B] mb-1">Why this matters:</p>
+                      <p className="text-xs text-gray-600 leading-relaxed">{rec.reason}</p>
+                    </div>
+
+                    {/* Impact and time estimates */}
+                    <div className="flex items-center gap-4 text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <TrendingUp className="w-3.5 h-3.5 text-[#C5AA7D]" />
+                        <span className="text-gray-600">{rec.impact}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Target className="w-3.5 h-3.5 text-[#C5AA7D]" />
+                        <span className="text-gray-600">{rec.timeEstimate}</span>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               ))}

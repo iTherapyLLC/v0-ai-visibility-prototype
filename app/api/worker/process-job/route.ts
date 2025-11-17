@@ -27,7 +27,7 @@ async function runJob(jobId: string) {
 
   const prompts = FULL_PROMPT_SET.slice(0, 10).map((text) => {
     let category = "general"
-    const t = text.toLowerCase()
+    const t = text?.toLowerCase() ?? ''
     if (t.includes("romantic")) category = "occasion"
     else if (t.includes("family")) category = "family"
     else if (t.includes("best") || t.includes("first-time")) category = "discovery"
