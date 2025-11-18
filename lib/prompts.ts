@@ -5,18 +5,23 @@ export const TEST_PROMPTS = ["Recommend dog-friendly wineries in Napa Valley"]
 
 // Full prompt set available for future use when processing time is optimized
 export const FULL_PROMPT_SET = [
-  // Discovery (1-3)
+  // Discovery (1-7) - Expanded to test multiple wine varietals
   { category: 'discovery', text: 'Best wineries in Napa for first-time visitors' },
-  { category: 'discovery', text: 'Top Napa wineries for cabernet sauvignon' },
+  { category: 'discovery', text: 'Top Napa wineries for Cabernet Sauvignon' },
+  { category: 'discovery', text: 'Best Napa Chardonnay producers' },
+  { category: 'discovery', text: 'Top Napa Pinot Noir wineries' },
+  { category: 'discovery', text: 'Best sparkling wine producers in Napa Valley' },
+  { category: 'discovery', text: 'Top Napa Sauvignon Blanc wineries' },
   { category: 'discovery', text: 'Wineries with food pairings in Napa Valley' },
   
-  // Experience (4-7)
+  // Experience (8-11)
   { category: 'experience', text: 'Family-friendly wineries in Napa' },
   { category: 'experience', text: 'Romantic wineries in Napa for couples' },
   { category: 'experience', text: 'Best value wine tasting in Napa Valley' },
   { category: 'experience', text: 'Historic Napa Valley wineries to visit' },
+  { category: 'experience', text: 'Winery tours in Napa Valley' },
   
-  // Practical (8-10)
+  // Practical (12-14)
   { category: 'practical', text: 'Napa wineries that don\'t require reservations' },
   { category: 'practical', text: 'Small boutique wineries in Napa' },
   { category: 'practical', text: 'Napa wineries with beautiful architecture' },
