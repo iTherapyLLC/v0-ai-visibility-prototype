@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Navigation } from "@/components/navigation" // Import Navigation component
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type { WinerySpecialty } from "@/lib/prompts"
 
 interface LandingViewProps {
@@ -125,37 +131,26 @@ export function LandingView({ onAuditComplete }: LandingViewProps) {
             </div>
 
             <div className="space-y-3 text-left">
-              <Label className="text-base font-medium text-foreground">
+              <Label htmlFor="specialty" className="text-base font-medium text-foreground">
                 What's your winery's primary focus? <span className="text-muted-foreground text-sm">(optional)</span>
               </Label>
-              <RadioGroup value={specialty ?? ''} onValueChange={(v) => setSpecialty(v as WinerySpecialty || null)} disabled={isSubmitting}>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="cabernet" id="cabernet" />
-                    <Label htmlFor="cabernet" className="font-normal cursor-pointer">Cabernet Sauvignon</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="chardonnay" id="chardonnay" />
-                    <Label htmlFor="chardonnay" className="font-normal cursor-pointer">Chardonnay</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="pinot" id="pinot" />
-                    <Label htmlFor="pinot" className="font-normal cursor-pointer">Pinot Noir</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="sparkling" id="sparkling" />
-                    <Label htmlFor="sparkling" className="font-normal cursor-pointer">Sparkling Wines</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="multiple" id="multiple" />
-                    <Label htmlFor="multiple" className="font-normal cursor-pointer">Multiple Varietals</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="" id="other" />
-                    <Label htmlFor="other" className="font-normal cursor-pointer">Other/Not Sure (use default prompts)</Label>
-                  </div>
-                </div>
-              </RadioGroup>
+              <Select
+                value={specialty ?? 'default'}
+                onValueChange={(v) => setSpecialty(v === 'default' ? null : v as WinerySpecialty)}
+                disabled={isSubmitting}
+              >
+                <SelectTrigger id="specialty" className="h-12 text-base bg-card">
+                  <SelectValue placeholder="Select a specialty (or use default prompts)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">General / Not Sure (default prompts)</SelectItem>
+                  <SelectItem value="cabernet">Cabernet Sauvignon</SelectItem>
+                  <SelectItem value="chardonnay">Chardonnay</SelectItem>
+                  <SelectItem value="pinot">Pinot Noir</SelectItem>
+                  <SelectItem value="sparkling">Sparkling Wines</SelectItem>
+                  <SelectItem value="multiple">Multiple Varietals</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {error && (
