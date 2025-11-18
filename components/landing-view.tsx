@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Navigation } from "@/components/navigation" // Import Navigation component
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import type { WinerySpecialty } from "@/lib/prompts"
 
 interface LandingViewProps {
   onAuditComplete: (auditId: string, url: string) => void
@@ -17,6 +19,7 @@ export function LandingView({ onAuditComplete }: LandingViewProps) {
   const [scrollY, setScrollY] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [specialty, setSpecialty] = useState<WinerySpecialty>(null)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,7 +42,7 @@ export function LandingView({ onAuditComplete }: LandingViewProps) {
       const response = await fetch("/api/audit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim() }),
+        body: JSON.stringify({ url: url.trim(), specialty }),
       })
 
       if (!response.ok) {
@@ -119,6 +122,40 @@ export function LandingView({ onAuditComplete }: LandingViewProps) {
                 required
                 disabled={isSubmitting}
               />
+            </div>
+
+            <div className="space-y-3 text-left">
+              <Label className="text-base font-medium text-foreground">
+                What's your winery's primary focus? <span className="text-muted-foreground text-sm">(optional)</span>
+              </Label>
+              <RadioGroup value={specialty ?? ''} onValueChange={(v) => setSpecialty(v as WinerySpecialty || null)} disabled={isSubmitting}>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="cabernet" id="cabernet" />
+                    <Label htmlFor="cabernet" className="font-normal cursor-pointer">Cabernet Sauvignon</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="chardonnay" id="chardonnay" />
+                    <Label htmlFor="chardonnay" className="font-normal cursor-pointer">Chardonnay</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="pinot" id="pinot" />
+                    <Label htmlFor="pinot" className="font-normal cursor-pointer">Pinot Noir</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="sparkling" id="sparkling" />
+                    <Label htmlFor="sparkling" className="font-normal cursor-pointer">Sparkling Wines</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="multiple" id="multiple" />
+                    <Label htmlFor="multiple" className="font-normal cursor-pointer">Multiple Varietals</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="" id="other" />
+                    <Label htmlFor="other" className="font-normal cursor-pointer">Other/Not Sure (use default prompts)</Label>
+                  </div>
+                </div>
+              </RadioGroup>
             </div>
 
             {error && (

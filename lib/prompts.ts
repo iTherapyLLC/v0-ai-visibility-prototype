@@ -3,29 +3,67 @@
 
 export const TEST_PROMPTS = ["Recommend dog-friendly wineries in Napa Valley"]
 
-// Full prompt set available for future use when processing time is optimized
-export const FULL_PROMPT_SET = [
-  // Discovery (1-7) - Expanded to test multiple wine varietals
+export type WinerySpecialty = 'cabernet' | 'chardonnay' | 'pinot' | 'sparkling' | 'multiple' | null
+
+const UNIVERSAL_PROMPTS = [
   { category: 'discovery', text: 'Best wineries in Napa for first-time visitors' },
-  { category: 'discovery', text: 'Top Napa wineries for Cabernet Sauvignon' },
-  { category: 'discovery', text: 'Best Napa Chardonnay producers' },
-  { category: 'discovery', text: 'Top Napa Pinot Noir wineries' },
-  { category: 'discovery', text: 'Best sparkling wine producers in Napa Valley' },
-  { category: 'discovery', text: 'Top Napa Sauvignon Blanc wineries' },
   { category: 'discovery', text: 'Wineries with food pairings in Napa Valley' },
-  
-  // Experience (8-11)
   { category: 'experience', text: 'Family-friendly wineries in Napa' },
   { category: 'experience', text: 'Romantic wineries in Napa for couples' },
   { category: 'experience', text: 'Best value wine tasting in Napa Valley' },
   { category: 'experience', text: 'Historic Napa Valley wineries to visit' },
-  { category: 'experience', text: 'Winery tours in Napa Valley' },
-  
-  // Practical (12-14)
   { category: 'practical', text: 'Napa wineries that don\'t require reservations' },
-  { category: 'practical', text: 'Small boutique wineries in Napa' },
-  { category: 'practical', text: 'Napa wineries with beautiful architecture' },
 ]
+
+const SPECIALTY_PROMPTS: Record<NonNullable<WinerySpecialty>, Array<{ category: string; text: string }>> = {
+  cabernet: [
+    { category: 'discovery', text: 'Top Napa wineries for Cabernet Sauvignon' },
+    { category: 'discovery', text: 'Best Stags Leap District wineries' },
+    { category: 'discovery', text: 'Premium Cabernet tasting rooms in Napa' },
+  ],
+  chardonnay: [
+    { category: 'discovery', text: 'Best Napa Chardonnay producers' },
+    { category: 'discovery', text: 'Top wineries for white wine in Napa Valley' },
+    { category: 'discovery', text: 'Napa wineries known for Burgundian-style Chardonnay' },
+  ],
+  pinot: [
+    { category: 'discovery', text: 'Top Napa Pinot Noir wineries' },
+    { category: 'discovery', text: 'Best Carneros wineries for Pinot Noir' },
+    { category: 'discovery', text: 'Napa wineries specializing in Pinot Noir' },
+  ],
+  sparkling: [
+    { category: 'discovery', text: 'Best sparkling wine producers in Napa Valley' },
+    { category: 'discovery', text: 'Top wineries for Champagne-style wines in Napa' },
+    { category: 'discovery', text: 'Napa wineries with sparkling wine tasting flights' },
+  ],
+  multiple: [
+    { category: 'discovery', text: 'Top Napa wineries for Cabernet Sauvignon' },
+    { category: 'discovery', text: 'Best Napa Chardonnay producers' },
+    { category: 'discovery', text: 'Best sparkling wine producers in Napa Valley' },
+  ],
+}
+
+export function getPromptsForSpecialty(specialty: WinerySpecialty) {
+  const varietalPrompts = specialty && specialty in SPECIALTY_PROMPTS 
+    ? SPECIALTY_PROMPTS[specialty]
+    : SPECIALTY_PROMPTS.multiple
+
+  return [...UNIVERSAL_PROMPTS, ...varietalPrompts]
+}
+
+export function getSpecialtyDisplayName(specialty: WinerySpecialty): string {
+  const displayNames: Record<NonNullable<WinerySpecialty>, string> = {
+    cabernet: 'Cabernet Sauvignon',
+    chardonnay: 'Chardonnay',
+    pinot: 'Pinot Noir',
+    sparkling: 'Sparkling Wines',
+    multiple: 'Multiple Varietals',
+  }
+  return specialty ? displayNames[specialty] : 'Multiple Varietals'
+}
+
+// Full prompt set available for future use when processing time is optimized
+export const FULL_PROMPT_SET = getPromptsForSpecialty('multiple')
 
 // Extract domain from URL for mention checking
 export function extractDomain(url: string): string {

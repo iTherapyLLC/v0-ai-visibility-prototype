@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { sql, generateId } from "@/lib/db"
 import { testVisibilityWithPerplexity, extractBusinessName, calculateOverallScores } from "@/lib/perplexity"
-import { FULL_PROMPT_SET } from "@/lib/prompts"
+import { getPromptsForSpecialty, type WinerySpecialty } from "@/lib/prompts"
 
 export const maxDuration = 300 // 5 minutes for long batches
 export const runtime = "nodejs" // ensure Node runtime on Vercel
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic" // Add force-dynamic to avoid 405/404 due
 
 async function runJob(jobId: string) {
   const rows = await sql`
-    SELECT aj.id, aj.audit_id, aj.total_prompts, a.website_url
+    SELECT aj.id, aj.audit_id, aj.total_prompts, a.website_url, a.specialty
     FROM audit_jobs aj
     JOIN audits a ON a.id = aj.audit_id
     WHERE aj.id = ${jobId}
@@ -19,13 +19,14 @@ async function runJob(jobId: string) {
   const job = rows[0]
   const auditId = job.audit_id as string
   const websiteUrl = job.website_url as string
+  const specialty = (job.specialty as WinerySpecialty) || null
 
   await sql`UPDATE audit_jobs SET status='processing', started_at=NOW(), progress=0 WHERE id=${jobId}`
 
   const businessName = extractBusinessName(websiteUrl)
-  console.log("[Worker] Start:", { jobId, auditId, businessName })
+  console.log("[Worker] Start:", { jobId, auditId, businessName, specialty })
 
-  const prompts = FULL_PROMPT_SET.slice(0, 10).map((p) => {
+  const prompts = getPromptsForSpecialty(specialty).slice(0, 10).map((p) => {
     const text = typeof p === 'string' ? p : (p?.text ?? '')
     if (!text || typeof text !== 'string') {
       console.log('[v0 Debug] Invalid prompt text:', typeof p, p)

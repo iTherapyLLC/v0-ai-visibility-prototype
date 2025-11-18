@@ -14,6 +14,7 @@ export interface Audit {
   status: "processing" | "completed" | "failed"
   overall_score: number | null
   created_at: string
+  specialty: string | null
   schema_health_score: number | null
   speed_performance_score: number | null
   citation_count: number | null

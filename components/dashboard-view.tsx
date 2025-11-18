@@ -8,6 +8,7 @@ import { useState, useEffect, useRef } from "react"
 import { Navigation } from "@/components/navigation"
 import { CheckCircle2, XCircle, TrendingUp, Target, Lightbulb, Award, MapPin, Heart, Repeat, RefreshCw, ExternalLink, FileText, MessageSquare, Globe } from 'lucide-react'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
+import { getSpecialtyDisplayName, type WinerySpecialty } from '@/lib/prompts'
 
 interface DashboardViewProps {
   auditId: string
@@ -275,7 +276,7 @@ function generateDynamicRecommendations(audit: any, citationSources: any, totalP
     recommendations.push({
       title: 'Build Authority with Press & Awards',
       description: 'Secure mentions in wine publications, submit for industry awards, and partner with local tourism boards to build credible authority signals.',
-      reason: `You're mentioned but ranked low (Position Score: ${positionScore}/35). AI assistants see competitors as more authoritative.`,
+      reason: `AI sees competitors as more authoritative (Position Score: ${positionScore}/35). AI assistants see competitors as more authoritative.`,
       impact: 'Could improve Position Score by 15-20 points',
       timeEstimate: '1-2 months',
       priority: 'high'
@@ -591,6 +592,11 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
             <div>
               <h1 className="text-2xl font-serif text-[#30594B]">AI Visibility Report</h1>
               <p className="text-sm text-gray-600 mt-1">{websiteUrl}</p>
+              {audit.specialty && (
+                <p className="text-sm text-primary font-medium mt-1">
+                  Tested with prompts optimized for: {getSpecialtyDisplayName(audit.specialty as WinerySpecialty)}
+                </p>
+              )}
             </div>
             <Button onClick={onBack} variant="outline">
               New Audit
@@ -598,7 +604,50 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
           </div>
         </div>
 
+        {/* Key Metrics Grid */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto px-6 py-12">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <Target className="w-4 h-4" />
+                Total Citations
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-bold text-[#30594B]">{citationCount}</div>
+              <p className="text-sm text-gray-500 mt-1">Times mentioned by AI</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" />
+                Prompts Tested
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-bold text-[#30594B]">{totalPrompts}</div>
+              <p className="text-sm text-gray-500 mt-1">AI queries analyzed</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4" />
+                Mention Rate
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-bold text-[#30594B]">{mentionRate}%</div>
+              <p className="text-sm text-gray-500 mt-1">Visibility percentage</p>
+            </CardContent>
+          </Card>
+        </section>
+
         <div className="max-w-7xl mx-auto px-6 py-12 space-y-12">
+
           {/* Hero Section - Overall Score */}
           <section className="text-center space-y-6">
             <div className="inline-flex items-center gap-3">
@@ -624,47 +673,7 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
             </p>
           </section>
 
-          {/* Key Metrics Grid */}
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                  <Target className="w-4 h-4" />
-                  Total Citations
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold text-[#30594B]">{citationCount}</div>
-                <p className="text-sm text-gray-500 mt-1">Times mentioned by AI</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4" />
-                  Prompts Tested
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold text-[#30594B]">{totalPrompts}</div>
-                <p className="text-sm text-gray-500 mt-1">AI queries analyzed</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4" />
-                  Mention Rate
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold text-[#30594B]">{mentionRate}%</div>
-                <p className="text-sm text-gray-500 mt-1">Visibility percentage</p>
-              </CardContent>
-            </Card>
-          </section>
+          
 
           {/* GEO Dimension Scores Section */}
           <section className="space-y-6">
@@ -1071,91 +1080,6 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
                     maintaining prominence and defending against competitors.
                   </p>
                 )}
-              </CardContent>
-            </Card>
-          </section>
-
-          <section id="ai-visibility-explanation" className="space-y-8">
-            <div>
-              <h3 className="text-2xl font-serif text-[#30594B] mb-2">Understanding Your AI Visibility Score</h3>
-              <p className="text-gray-600 max-w-3xl">
-                Your AI Visibility Score shows how easily AI assistants—like ChatGPT, Perplexity, and Gemini—can find,
-                understand, and recommend your business. It's the next generation of SEO for AI-driven search.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="border-l-4 border-l-[#30594B]">
-                <CardHeader>
-                  <CardTitle className="text-lg text-[#30594B]">Citation Presence (0–25)</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-gray-600 space-y-2">
-                  <p>Measures how often AI mentions your business by name.</p>
-                  <p>
-                    <strong>Improve:</strong> add schema markup, ensure consistent NAP across directories, and earn
-                    reputable backlinks/press mentions.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-l-4 border-l-[#C5AA7D]">
-                <CardHeader>
-                  <CardTitle className="text-lg text-[#30594B]">Position Weight (0–35)</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-gray-600 space-y-2">
-                  <p>Shows where you rank in AI recommendation lists.</p>
-                  <p>
-                    <strong>Improve:</strong> publish "best-of" and FAQ content aligned to common queries; get listed on
-                    sources AI trusts (Yelp, TripAdvisor, Wine Enthusiast).
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-l-4 border-l-green-500">
-                <CardHeader>
-                  <CardTitle className="text-lg text-[#30594B]">Sentiment (0–25)</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-gray-600 space-y-2">
-                  <p>How positively AI describes your brand.</p>
-                  <p>
-                    <strong>Improve:</strong> drive reviews, highlight awards/testimonials, and surface positive press
-                    on site pages AI crawls.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-l-4 border-l-blue-500">
-                <CardHeader>
-                  <CardTitle className="text-lg text-[#30594B]">Frequency (0–15)</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-gray-600 space-y-2">
-                  <p>How consistently you appear across different AI questions.</p>
-                  <p>
-                    <strong>Improve:</strong> use a consistent brand name; keep Google Business, OpenTable, and Yelp
-                    listings updated; expand relevant content.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="border-l-4 border-l-[#30594B]">
-              <CardHeader>
-                <CardTitle className="text-lg text-[#30594B]">Overall Score (0–100)</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-gray-600">
-                Combines all four dimensions. 0–40 = rarely recommended, 41–70 = sometimes, 71+ = frequently and
-                favorably recommended.
-              </CardContent>
-            </Card>
-
-            <Card className="border-l-4 border-l-red-500">
-              <CardHeader>
-                <CardTitle className="text-lg text-[#30594B]">What a Low Score Means</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-gray-600">
-                AI tools aren't confident enough to recommend your business for your category. You're more likely to be
-                grouped as "generic" rather than a standout destination. The fix is targeted content, structured data,
-                reputation signals, and consistent naming.
               </CardContent>
             </Card>
           </section>
