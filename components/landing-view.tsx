@@ -6,7 +6,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Navigation } from "@/components/navigation" // Import Navigation component
+import { Navigation } from "@/components/navigation"
 import {
   Select,
   SelectContent,
@@ -113,7 +113,7 @@ export function LandingView({ onAuditComplete }: LandingViewProps) {
             </h2>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto animate-fade-in-delay-2">
+          <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto animate-fade-in-delay-2 pb-20">
             <div className="space-y-3 text-left">
               <Label htmlFor="website-url" className="text-base font-medium text-foreground">
                 Enter your website URL
@@ -130,7 +130,7 @@ export function LandingView({ onAuditComplete }: LandingViewProps) {
               />
             </div>
 
-            <div className="space-y-3 text-left">
+            <div className="space-y-3 text-left mb-8">
               <Label htmlFor="specialty" className="text-base font-medium text-foreground">
                 What's your winery's primary focus? <span className="text-muted-foreground text-sm">(optional)</span>
               </Label>
@@ -142,7 +142,7 @@ export function LandingView({ onAuditComplete }: LandingViewProps) {
                 <SelectTrigger id="specialty" className="h-12 text-base bg-card">
                   <SelectValue placeholder="Select a specialty (or use default prompts)" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white dark:bg-zinc-900 backdrop-blur-none">
                   <SelectItem value="default">General / Not Sure (default prompts)</SelectItem>
                   <SelectItem value="cabernet">Cabernet Sauvignon</SelectItem>
                   <SelectItem value="chardonnay">Chardonnay</SelectItem>

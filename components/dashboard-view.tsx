@@ -1198,125 +1198,189 @@ export function DashboardView({ auditId, websiteUrl, onBack }: DashboardViewProp
   const totalPrompts = Number(job?.total_prompts || 10)
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#FAFAF8] via-[#F5F3EF] to-[#EDE9E3]">
-      {/* Subtle decorative elements */}
-      <div className="absolute inset-0 opacity-[0.03]">
-        <div className="absolute top-20 left-10 w-64 h-64 bg-[#30594B] rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#C5AA7D] rounded-full blur-3xl" />
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#30594B] via-[#3d6658] to-[#C5AA7D]">
+      {/* Wine country pattern overlay */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fillRule='evenodd'%3E%3Cg fill='%23FAFAF8' fillOpacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }} />
+      </div>
+
+      {/* Floating wine-themed decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-10 w-32 h-32 bg-[#FAFAF8]/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-1/4 right-10 w-40 h-40 bg-[#FAFAF8]/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#FAFAF8]/3 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
       </div>
 
       <div className="relative min-h-screen flex items-center justify-center px-6">
-        <div className="text-center space-y-8 max-w-2xl">
-          {/* Logo with elegant animation */}
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-[#30594B]/5 rounded-full blur-2xl animate-pulse" />
-            <div className="relative w-32 h-32 mx-auto animate-spin" style={{ animationDuration: "3s" }}>
-              <img
-                src="/images/featherstone-logo.png"
-                alt="Featherstone Intelligence Loading"
-                className="w-full h-full object-contain drop-shadow-lg"
-                onError={(e) => {
-                  console.error("[v0] Logo image failed to load")
-                  e.currentTarget.style.display = "none"
-                }}
-              />
+        <div className="text-center space-y-12 max-w-3xl">
+          
+          {/* Premium logo section with refined animation */}
+          <div className="space-y-6">
+            <div className="relative inline-block">
+              {/* Elegant glow effect */}
+              <div className="absolute inset-0 bg-[#FAFAF8]/10 rounded-full blur-2xl" />
+              
+              {/* Logo with smooth rotation */}
+              <div className="relative w-24 h-24 md:w-32 md:h-32 mx-auto">
+                <div 
+                  className="w-full h-full animate-spin-logo"
+                  style={{ 
+                    animation: 'spin 4s ease-in-out infinite',
+                  }}
+                >
+                  <img
+                    src="/images/featherstone-logo.png"
+                    alt="Featherstone Intelligence"
+                    className="w-full h-full object-contain drop-shadow-2xl"
+                    onError={(e) => {
+                      console.error("[v0] Logo image failed to load")
+                      e.currentTarget.style.display = "none"
+                    }}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Main heading with wine country typography */}
-          <div className="space-y-3">
-            <h2 className="text-3xl md:text-4xl font-serif font-semibold text-[#30594B] tracking-wide">
-              ANALYZING AI VISIBILITY
-            </h2>
-            <div className="flex items-center justify-center gap-2">
-              <div className="h-px w-12 bg-gradient-to-r from-transparent to-[#C5AA7D]" />
-              <p className="text-base text-[#30594B]/70 font-medium">
-                {job && job?.status === "processing" ? "Testing Prompts" : "Scanning AI Platforms"}
+            {/* Elegant heading with gold accent */}
+            <div className="space-y-4">
+              <h2 className="text-3xl md:text-5xl font-serif font-semibold text-[#FAFAF8] tracking-wide leading-tight">
+                Analyzing Your<br />AI Visibility
+              </h2>
+              
+              {/* Decorative divider */}
+              <div className="flex items-center justify-center gap-3">
+                <div className="h-px w-16 bg-gradient-to-r from-transparent via-[#C5AA7D] to-transparent" />
+                <div className="w-2 h-2 rounded-full bg-[#C5AA7D]" />
+                <div className="h-px w-16 bg-gradient-to-r from-transparent via-[#C5AA7D] to-transparent" />
+              </div>
+
+              <p className="text-[#FAFAF8]/80 text-lg font-light">
+                Evaluating how AI assistants discover and recommend your winery
               </p>
-              <div className="h-px w-12 bg-gradient-to-l from-transparent to-[#C5AA7D]" />
             </div>
           </div>
 
-          {/* Progress section */}
-          {job && job?.status === "processing" ? (
-            <div className="space-y-6">
-              {/* Progress stats */}
-              <div className="bg-white/60 backdrop-blur-sm border border-[#30594B]/10 rounded-2xl p-6 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium text-[#30594B]/70">Progress</span>
-                  <span className="text-2xl font-bold text-[#30594B]">{progress}%</span>
+          {/* Progress section with refined design */}
+          {job && job?.status === "processing" && (
+            <div className="space-y-8">
+              
+              {/* Progress card */}
+              <div className="bg-white/95 backdrop-blur-xl border border-[#FAFAF8]/20 rounded-2xl p-8 shadow-2xl">
+                <div className="space-y-6">
+                  
+                  {/* Progress header */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-[#30594B]/70 uppercase tracking-wider">Progress</span>
+                    <span className="text-4xl font-bold text-[#30594B]">{progress}%</span>
+                  </div>
+
+                  {/* Premium progress bar */}
+                  <div className="space-y-3">
+                    <div className="h-3 bg-[#30594B]/10 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-[#30594B] to-[#C5AA7D] rounded-full transition-all duration-500 ease-out"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-[#30594B]/60">
+                        Testing prompt {currentPrompt} of {totalPrompts}
+                      </span>
+                      <span className="text-[#30594B]/60 font-medium">
+                        {totalPrompts - currentPrompt} remaining
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Wine-themed status indicators */}
+                  <div className="pt-6 border-t border-[#30594B]/10">
+                    <div className="grid grid-cols-3 gap-4">
+                      
+                      {/* Analyzing */}
+                      <div className="text-center space-y-2">
+                        <div className="inline-flex p-3 bg-[#30594B]/10 rounded-xl">
+                          <svg className="w-6 h-6 text-[#30594B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                          </svg>
+                        </div>
+                        <p className="text-xs text-[#30594B]/70 font-medium">Analyzing</p>
+                      </div>
+
+                      {/* Quality Check */}
+                      <div className="text-center space-y-2">
+                        <div className="inline-flex p-3 bg-[#C5AA7D]/10 rounded-xl">
+                          <svg className="w-6 h-6 text-[#C5AA7D]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                          </svg>
+                        </div>
+                        <p className="text-xs text-[#C5AA7D]/70 font-medium">Verifying</p>
+                      </div>
+
+                      {/* Compiling */}
+                      <div className="text-center space-y-2">
+                        <div className="inline-flex p-3 bg-[#30594B]/10 rounded-xl">
+                          <svg className="w-6 h-6 text-[#30594B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <p className="text-xs text-[#30594B]/70 font-medium">Compiling</p>
+                      </div>
+
+                    </div>
+                  </div>
+
                 </div>
-                <Progress value={progress} className="h-3 bg-[#30594B]/10" />
-                <p className="text-sm text-[#30594B]/60 mt-3">
-                  Testing prompt {currentPrompt} of {totalPrompts}
-                </p>
               </div>
 
-              {/* Platform badges */}
-              <div className="flex items-center justify-center gap-4 flex-wrap">
-                {["ChatGPT", "Perplexity", "Gemini"].map((platform, index) => (
-                  <div
-                    key={platform}
-                    className="px-4 py-2 bg-white/60 backdrop-blur-sm border border-[#30594B]/10 rounded-full shadow-sm"
-                  >
-                    <span className="text-sm font-medium text-[#30594B]">{platform}</span>
-                  </div>
-                ))}
-              </div>
+              {/* Subtle reassurance message */}
+              <p className="text-[#FAFAF8]/60 text-sm font-light italic">
+                This comprehensive analysis typically takes 2-3 minutes
+              </p>
+
             </div>
-          ) : (
-            <>
-              {/* Platform badges */}
-              <div className="flex items-center justify-center gap-4 flex-wrap">
-                {["ChatGPT", "Perplexity", "Gemini"].map((platform, index) => (
+          )}
+
+          {/* Initial queue state */}
+          {(!job || job?.status === "queued") && (
+            <div className="space-y-6">
+              
+              {/* Animated dots loader */}
+              <div className="flex items-center justify-center gap-2">
+                {[0, 1, 2, 3, 4].map((i) => (
                   <div
-                    key={platform}
-                    className="px-4 py-2 bg-white/60 backdrop-blur-sm border border-[#30594B]/10 rounded-full shadow-sm animate-fade-in"
-                    style={{ animationDelay: `${index * 200}ms` }}
-                  >
-                    <span className="text-sm font-medium text-[#30594B]">{platform}</span>
-                  </div>
+                    key={i}
+                    className="w-2.5 h-2.5 bg-[#C5AA7D] rounded-full animate-bounce"
+                    style={{ 
+                      animationDelay: `${i * 150}ms`, 
+                      animationDuration: '1.2s' 
+                    }}
+                  />
                 ))}
               </div>
 
-              {/* Subtle progress indicator */}
-              <div className="pt-4">
-                <div className="flex items-center justify-center gap-2">
-                  {[0, 1, 2].map((i) => (
-                    <div
-                      key={i}
-                      className="w-2 h-2 bg-[#C5AA7D] rounded-full animate-bounce"
-                      style={{ animationDelay: `${i * 150}ms`, animationDuration: "1s" }}
-                    />
-                  ))}
-                </div>
-                <p className="text-sm text-[#30594B]/60 mt-4 italic">
-                  Evaluating your presence across AI assistants...
-                </p>
-              </div>
-            </>
+              <p className="text-[#FAFAF8]/70 text-base font-light italic">
+                Preparing your visibility assessment...
+              </p>
+
+            </div>
           )}
+
         </div>
       </div>
 
+      {/* Premium animation keyframes */}
       <style>{`
         @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.6s ease-out forwards;
-          opacity: 0;
+        
+        @keyframes pulse {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 0.6; }
         }
       `}</style>
     </div>
