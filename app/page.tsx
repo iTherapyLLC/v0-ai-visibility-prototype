@@ -37,7 +37,7 @@ export default function Home() {
     <>
       {view === "landing" && <LandingView onAuditComplete={handleAuditComplete} />}
       {view === "loading" && (
-        <div className="min-h-screen pt-20 relative overflow-hidden bg-gradient-to-br from-[#30594B] via-[#3d6658] to-[#C5AA7D]">
+        <div className="min-h-[calc(100vh-5rem)] pt-24 relative overflow-hidden bg-gradient-to-br from-[#30594B] via-[#3d6658] to-[#C5AA7D]">
           {/* Wine country pattern overlay */}
           <div className="absolute inset-0 opacity-5">
             <div className="absolute inset-0" style={{
@@ -51,7 +51,7 @@ export default function Home() {
             <div className="absolute bottom-1/4 right-10 w-40 h-40 bg-[#FAFAF8]/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
           </div>
 
-          <div className="relative flex items-center justify-center px-6" style={{ minHeight: 'calc(100vh - 5rem)' }}>
+          <div className="relative flex items-center justify-center px-6 py-12" style={{ minHeight: 'calc(100vh - 12rem)' }}>
             <div className="text-center space-y-12 max-w-3xl">
               
               {/* Logo section */}
