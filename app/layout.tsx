@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter, Playfair_Display_SC } from "next/font/google"
+import { Inter, Playfair_Display } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
@@ -12,23 +12,23 @@ const inter = Inter({
   display: "swap",
 })
 
-const playfair = Playfair_Display_SC({
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: ["400", "700", "900"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-serif",
   display: "swap",
 })
 
 export const metadata: Metadata = {
-  title: "AI Visibility Prototype | Featherstone Intelligence",
+  title: "Featherstone Intelligence | AI Visibility for Wine Country",
   description:
-    "See how AI already talks about your brand. Run a free GEO visibility check for your winery or hospitality business.",
+    "Invisible Intelligence. Unforgettable Hospitality. We help premium wineries become the answer when AI recommends where to go next.",
   generator: "v0.app",
   metadataBase: new URL("https://v0-ai-visibility-prototype.vercel.app"),
   openGraph: {
-    title: "AI Visibility Prototype | Featherstone Intelligence",
+    title: "Featherstone Intelligence | AI Visibility for Wine Country",
     description:
-      "See how AI already talks about your brand. Run a free GEO visibility check for your winery or hospitality business.",
+      "Invisible Intelligence. Unforgettable Hospitality. We help premium wineries become the answer when AI recommends where to go next.",
     url: "https://v0-ai-visibility-prototype.vercel.app",
     siteName: "Featherstone Intelligence",
     images: [
@@ -44,9 +44,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI Visibility Prototype | Featherstone Intelligence",
+    title: "Featherstone Intelligence | AI Visibility for Wine Country",
     description:
-      "See how AI already talks about your brand. Run a free GEO visibility check for your winery or hospitality business.",
+      "Invisible Intelligence. Unforgettable Hospitality. We help premium wineries become the answer when AI recommends where to go next.",
     images: ["/og-image.png"],
   },
 }
@@ -58,9 +58,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${playfair.variable} font-sans antialiased bg-[#FAF8F5]`}>
         <Navigation />
-        <main className="pt-16">{children}</main>
+        <main>{children}</main>
         <Footer />
         <Analytics />
       </body>
