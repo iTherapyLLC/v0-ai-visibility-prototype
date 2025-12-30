@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Eye, EyeOff, Lock, Mail, ArrowLeft, AlertCircle } from "lucide-react"
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get("redirect") || "/geo-audit"
@@ -61,6 +61,145 @@ export default function LoginPage() {
   }
 
   return (
+    <Card className="bg-[#FAF8F5] border-0 shadow-2xl">
+      <CardHeader className="text-center pb-4">
+        {/* Logo */}
+        <div className="mb-4">
+          <Image
+            src="/images/featherstone-logo.png"
+            alt="Featherstone Intelligence"
+            width={80}
+            height={80}
+            className="mx-auto"
+          />
+        </div>
+        <CardTitle className="text-2xl font-serif font-bold text-[#2C2C2C]">
+          GEO Visibility Tool
+        </CardTitle>
+        <CardDescription className="text-[#2C2C2C]/60">
+          Sign in to access your AI visibility audit dashboard
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Error message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+
+          {/* Email field */}
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-[#2C2C2C] font-medium">
+              Email Address
+            </Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#2C2C2C]/40" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@winery.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="pl-10 h-12 bg-white border-[#C4B39A]/30 focus:border-[#B87333] focus:ring-[#B87333]"
+                required
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
+          {/* Password field */}
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-[#2C2C2C] font-medium">
+              Password
+            </Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#2C2C2C]/40" />
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="pl-10 pr-10 h-12 bg-white border-[#C4B39A]/30 focus:border-[#B87333] focus:ring-[#B87333]"
+                required
+                disabled={isLoading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2C2C2C]/40 hover:text-[#2C2C2C]/60 transition-colors"
+              >
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Submit button */}
+          <Button
+            type="submit"
+            className="w-full h-12 bg-[#B87333] hover:bg-[#A66329] text-white font-semibold text-lg"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Signing in...</span>
+              </div>
+            ) : (
+              "Sign In"
+            )}
+          </Button>
+        </form>
+
+        {/* Help text */}
+        <div className="mt-6 pt-6 border-t border-[#C4B39A]/20 text-center">
+          <p className="text-sm text-[#2C2C2C]/60">
+            Need access?{" "}
+            <Link href="/#contact" className="text-[#B87333] hover:underline font-medium">
+              Contact us
+            </Link>
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function LoginFormFallback() {
+  return (
+    <Card className="bg-[#FAF8F5] border-0 shadow-2xl">
+      <CardHeader className="text-center pb-4">
+        <div className="mb-4">
+          <div className="w-20 h-20 bg-[#C4B39A]/20 rounded-full mx-auto animate-pulse" />
+        </div>
+        <div className="h-8 bg-[#C4B39A]/20 rounded w-48 mx-auto animate-pulse" />
+        <div className="h-4 bg-[#C4B39A]/20 rounded w-64 mx-auto mt-2 animate-pulse" />
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="space-y-2">
+          <div className="h-4 bg-[#C4B39A]/20 rounded w-24 animate-pulse" />
+          <div className="h-12 bg-[#C4B39A]/20 rounded animate-pulse" />
+        </div>
+        <div className="space-y-2">
+          <div className="h-4 bg-[#C4B39A]/20 rounded w-20 animate-pulse" />
+          <div className="h-12 bg-[#C4B39A]/20 rounded animate-pulse" />
+        </div>
+        <div className="h-12 bg-[#B87333]/50 rounded animate-pulse" />
+      </CardContent>
+    </Card>
+  )
+}
+
+export default function LoginPage() {
+  return (
     <div className="min-h-screen bg-gradient-to-br from-[#2C2C2C] via-[#3a3a3a] to-[#2C2C2C] flex items-center justify-center px-6 py-12">
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -78,115 +217,9 @@ export default function LoginPage() {
           <span className="text-sm font-medium">Back to Home</span>
         </Link>
 
-        <Card className="bg-[#FAF8F5] border-0 shadow-2xl">
-          <CardHeader className="text-center pb-4">
-            {/* Logo */}
-            <div className="mb-4">
-              <Image
-                src="/images/featherstone-logo.png"
-                alt="Featherstone Intelligence"
-                width={80}
-                height={80}
-                className="mx-auto"
-              />
-            </div>
-            <CardTitle className="text-2xl font-serif font-bold text-[#2C2C2C]">
-              GEO Visibility Tool
-            </CardTitle>
-            <CardDescription className="text-[#2C2C2C]/60">
-              Sign in to access your AI visibility audit dashboard
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Error message */}
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
-              )}
-
-              {/* Email field */}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-[#2C2C2C] font-medium">
-                  Email Address
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#2C2C2C]/40" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@winery.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 h-12 bg-white border-[#C4B39A]/30 focus:border-[#B87333] focus:ring-[#B87333]"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-              </div>
-
-              {/* Password field */}
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-[#2C2C2C] font-medium">
-                  Password
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#2C2C2C]/40" />
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 h-12 bg-white border-[#C4B39A]/30 focus:border-[#B87333] focus:ring-[#B87333]"
-                    required
-                    disabled={isLoading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2C2C2C]/40 hover:text-[#2C2C2C]/60 transition-colors"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-5 h-5" />
-                    ) : (
-                      <Eye className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Submit button */}
-              <Button
-                type="submit"
-                className="w-full h-12 bg-[#B87333] hover:bg-[#A66329] text-white font-semibold text-lg"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Signing in...</span>
-                  </div>
-                ) : (
-                  "Sign In"
-                )}
-              </Button>
-            </form>
-
-            {/* Help text */}
-            <div className="mt-6 pt-6 border-t border-[#C4B39A]/20 text-center">
-              <p className="text-sm text-[#2C2C2C]/60">
-                Need access?{" "}
-                <Link href="/#contact" className="text-[#B87333] hover:underline font-medium">
-                  Contact us
-                </Link>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <Suspense fallback={<LoginFormFallback />}>
+          <LoginForm />
+        </Suspense>
 
         {/* Footer */}
         <p className="text-center text-[#FAF8F5]/40 text-sm mt-8">
