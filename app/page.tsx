@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { InteractiveText } from "@/components/interactive-text"
 import { Brain, Target, TrendingUp, Users, ArrowRight, CheckCircle, MessageSquare } from "lucide-react"
+import { MagicRevealLogo } from "@/components/magic-reveal-logo"
 
 function useCountUp(end: number, duration = 2000) {
   const [count, setCount] = useState(0)
@@ -183,6 +184,21 @@ export default function HomePage() {
       {/* Problem Section */}
       <section className="py-20 px-6 bg-gradient-to-b from-[#FAF8F5] to-white" ref={problemFade.ref}>
         <div className="max-w-6xl mx-auto">
+          <div className="mb-16 relative h-[400px] rounded-3xl overflow-hidden shadow-2xl group">
+            <Image
+              src="/images/napa-winery-vineyard-sunset.jpg"
+              alt="Napa Valley Winery at Sunset"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-700"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/60 via-transparent to-transparent" />
+            <div className="absolute bottom-8 left-8 right-8 text-white">
+              <p className="text-sm font-medium tracking-widest uppercase mb-2 opacity-90">The New Reality</p>
+              <h3 className="text-3xl md:text-4xl font-serif font-bold">Your Brand Deserves to Be Seen</h3>
+            </div>
+          </div>
+
           <div className="text-center mb-12">
             <InteractiveText
               text="AI Is Changing How Guests Find You"
@@ -253,6 +269,35 @@ export default function HomePage() {
             </p>
           </div>
 
+          <div className="grid md:grid-cols-2 gap-6 mb-16">
+            <div className="relative h-[300px] rounded-2xl overflow-hidden shadow-xl group">
+              <Image
+                src="/images/elegant-restaurant-wine-tasting.jpg"
+                alt="Elegant Restaurant Wine Service"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/50 to-transparent" />
+              <div className="absolute bottom-6 left-6 text-white">
+                <p className="text-lg font-semibold">Premium Hospitality</p>
+                <p className="text-sm opacity-90">Crafting unforgettable experiences</p>
+              </div>
+            </div>
+            <div className="relative h-[300px] rounded-2xl overflow-hidden shadow-xl group">
+              <Image
+                src="/images/winery-barrel-room-atmosphere.jpg"
+                alt="Winery Barrel Room"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/50 to-transparent" />
+              <div className="absolute bottom-6 left-6 text-white">
+                <p className="text-lg font-semibold">Wine Country Excellence</p>
+                <p className="text-sm opacity-90">Tradition meets innovation</p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="bg-[#FAF8F5] border-0 shadow-lg hover:shadow-xl hover:shadow-[#B87333]/10 hover:-translate-y-2 transition-all duration-300 group h-full">
               <CardContent className="p-8 text-center h-full flex flex-col items-center">
@@ -310,6 +355,25 @@ export default function HomePage() {
             <p className="text-xl text-[#2C2C2C]/70 max-w-3xl mx-auto">
               A proven methodology that delivers measurable improvements in AI visibility within 30-60 days.
             </p>
+          </div>
+
+          <div className="mb-16 relative h-[350px] rounded-3xl overflow-hidden shadow-2xl group">
+            <Image
+              src="/images/vineyard-rows-perspective.jpg"
+              alt="Vineyard Landscape"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#2C2C2C]/70 via-[#2C2C2C]/40 to-transparent" />
+            <div className="absolute inset-0 flex items-center">
+              <div className="px-12 text-white max-w-2xl">
+                <p className="text-sm font-medium tracking-widest uppercase mb-3 opacity-90">Our Approach</p>
+                <h3 className="text-3xl md:text-4xl font-serif font-bold mb-4">Strategic. Measurable. Effective.</h3>
+                <p className="text-lg opacity-95">
+                  Every step designed to elevate your brand's visibility in the age of AI-driven discovery.
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="relative">
@@ -370,9 +434,13 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
               <p className="text-[#B87333] font-medium tracking-widest uppercase mb-4">About Us</p>
-              <h2 className="text-3xl md:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
+              <InteractiveText
+                as="h2"
+                className="text-3xl md:text-5xl font-serif font-bold text-[#2C2C2C] mb-6"
+                glowColor="#B87333"
+              >
                 Wine Country Experts, AI Pioneers
-              </h2>
+              </InteractiveText>
               <p className="text-lg text-[#2C2C2C]/70 mb-6 leading-relaxed">
                 Featherstone Intelligence was founded with a singular focus: helping premium hospitality brands thrive
                 in the age of AI-driven discovery.
@@ -404,18 +472,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="relative">
-              <div className="aspect-square bg-[#FAF8F5] rounded-2xl overflow-hidden shadow-xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#B87333]/10 to-transparent" />
-                <div className="absolute inset-0 flex items-center justify-center bg-[#FAF8F5]">
-                  <Image
-                    src="/images/featherstone-logo.png"
-                    alt="Featherstone Intelligence"
-                    width={200}
-                    height={200}
-                    className="object-contain opacity-40"
-                  />
-                </div>
-              </div>
+              <MagicRevealLogo src="/images/featherstone-logo.png" alt="Featherstone Intelligence" />
             </div>
           </div>
         </div>
