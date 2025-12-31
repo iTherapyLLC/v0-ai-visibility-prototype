@@ -201,9 +201,10 @@ export default function HomePage() {
 
           <div className="text-center mb-12">
             <InteractiveText
-              text="AI Is Changing How Guests Find You"
-              className="text-3xl md:text-4xl font-bold text-[#2C2C2C] mb-4"
-            />
+              className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[#2C2C2C] mb-4 whitespace-nowrap"
+            >
+              AI Is Changing How Guests Find You
+            </InteractiveText>
             <p className="text-lg text-[#2C2C2C]/70 max-w-2xl mx-auto">
               The hospitality discovery landscape is shifting. Is your brand visible where it matters most?
             </p>
@@ -260,8 +261,10 @@ export default function HomePage() {
         >
           <div className="text-center mb-16">
             <p className="text-[#B87333] font-medium tracking-widest uppercase mb-4">Our Services</p>
-            <h2 className="text-3xl md:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
-              <InteractiveText glowColor="#B87333">Generative Engine Optimization</InteractiveText>
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
+              <span className="whitespace-nowrap">
+                <InteractiveText glowColor="#B87333">Generative Engine Optimization</InteractiveText>
+              </span>
             </h2>
             <p className="text-xl text-[#2C2C2C]/70 max-w-3xl mx-auto">
               We don't just optimize for search engines. We optimize for the AI systems that are becoming the new
@@ -349,8 +352,10 @@ export default function HomePage() {
         >
           <div className="text-center mb-16">
             <p className="text-[#B87333] font-medium tracking-widest uppercase mb-4">The Process</p>
-            <h2 className="text-3xl md:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
-              <InteractiveText glowColor="#B87333">From Invisible to Unforgettable</InteractiveText>
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
+              <span className="whitespace-nowrap">
+                <InteractiveText glowColor="#B87333">From Invisible to Unforgettable</InteractiveText>
+              </span>
             </h2>
             <p className="text-xl text-[#2C2C2C]/70 max-w-3xl mx-auto">
               A proven methodology that delivers measurable improvements in AI visibility within 30-60 days.
@@ -436,7 +441,7 @@ export default function HomePage() {
               <p className="text-[#B87333] font-medium tracking-widest uppercase mb-4">About Us</p>
               <InteractiveText
                 as="h2"
-                className="text-3xl md:text-5xl font-serif font-bold text-[#2C2C2C] mb-6"
+                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold text-[#2C2C2C] mb-6 whitespace-nowrap"
                 glowColor="#B87333"
               >
                 Wine Country Experts, AI Pioneers
@@ -480,8 +485,10 @@ export default function HomePage() {
 
       <section className="py-24 px-6 bg-[#2C2C2C] text-white text-center">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-serif font-bold text-white mb-6">
-            <InteractiveText glowColor="#C5AA7D">See Your AI Visibility Score</InteractiveText>
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold text-white mb-6">
+            <span className="whitespace-nowrap">
+              <InteractiveText glowColor="#C5AA7D">See Your AI Visibility Score</InteractiveText>
+            </span>
           </h2>
           <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
             Run a free GEO visibility audit and discover how AI assistants currently perceive and recommend your winery.
@@ -503,8 +510,10 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-[#B87333] font-medium tracking-widest uppercase mb-4">Get Started</p>
-            <h2 className="text-3xl md:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
-              <InteractiveText glowColor="#B87333">Ready to Be Discovered?</InteractiveText>
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
+              <span className="whitespace-nowrap">
+                <InteractiveText glowColor="#B87333">Ready to Be Discovered?</InteractiveText>
+              </span>
             </h2>
             <p className="text-xl text-[#2C2C2C]/70 max-w-2xl mx-auto">
               Schedule a complimentary consultation to discuss your AI visibility strategy.
