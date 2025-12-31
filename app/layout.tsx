@@ -40,10 +40,10 @@ export const metadata: Metadata = {
     siteName: "Featherstone Intelligence",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image.jpg",
         width: 1200,
-        height: 1200,
-        alt: "Featherstone Intelligence Logo",
+        height: 630,
+        alt: "Featherstone Intelligence - Invisible Intelligence. Unforgettable Hospitality.",
       },
     ],
     locale: "en_US",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     title: "Featherstone Intelligence | AI Visibility for Wine Country",
     description:
       "Invisible Intelligence. Unforgettable Hospitality. We help premium wineries become the answer when AI recommends where to go next.",
-    images: ["/og-image.png"],
+    images: ["/og-image.jpg"],
   },
 }
 
