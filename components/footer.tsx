@@ -13,13 +13,13 @@ export function Footer() {
           {/* Logo and tagline */}
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-4">
-              <div className="rounded-full border border-[#C4B39A]/30 p-1.5 bg-[#FAF8F5]/5">
+              <div className="rounded-full border border-[#C5AA7D]/30 p-1.5 bg-white shadow-sm">
                 <Image
                   src="/images/featherstone-logo.png"
                   alt="Featherstone Intelligence"
                   width={32}
                   height={32}
-                  className="h-8 w-8 object-contain opacity-80"
+                  className="h-8 w-8 object-contain"
                 />
               </div>
               <span className="font-serif text-lg font-semibold text-[#FAF8F5] tracking-wide">
@@ -27,46 +27,32 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-[#FAF8F5]/60 text-sm leading-relaxed max-w-md">
-              Invisible Intelligence. Unforgettable Hospitality. Helping premium wineries
-              and hospitality brands thrive in the age of AI-driven discovery.
+              Invisible Intelligence. Unforgettable Hospitality. Helping premium wineries and hospitality brands thrive
+              in the age of AI-driven discovery.
             </p>
           </div>
 
           {/* Quick links */}
           <div>
-            <h4 className="text-[#C4B39A] font-semibold text-sm uppercase tracking-wider mb-4">
-              Quick Links
-            </h4>
+            <h4 className="text-[#C4B39A] font-semibold text-sm uppercase tracking-wider mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li>
-                <Link
-                  href="/#solutions"
-                  className="text-[#FAF8F5]/60 hover:text-[#FAF8F5] text-sm transition-colors"
-                >
+                <Link href="/#solutions" className="text-[#FAF8F5]/60 hover:text-[#FAF8F5] text-sm transition-colors">
                   Solutions
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/#process"
-                  className="text-[#FAF8F5]/60 hover:text-[#FAF8F5] text-sm transition-colors"
-                >
+                <Link href="/#process" className="text-[#FAF8F5]/60 hover:text-[#FAF8F5] text-sm transition-colors">
                   Process
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/#about"
-                  className="text-[#FAF8F5]/60 hover:text-[#FAF8F5] text-sm transition-colors"
-                >
+                <Link href="/#about" className="text-[#FAF8F5]/60 hover:text-[#FAF8F5] text-sm transition-colors">
                   About
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/#contact"
-                  className="text-[#FAF8F5]/60 hover:text-[#FAF8F5] text-sm transition-colors"
-                >
+                <Link href="/#contact" className="text-[#FAF8F5]/60 hover:text-[#FAF8F5] text-sm transition-colors">
                   Contact
                 </Link>
               </li>
@@ -75,23 +61,15 @@ export function Footer() {
 
           {/* Tools */}
           <div>
-            <h4 className="text-[#C4B39A] font-semibold text-sm uppercase tracking-wider mb-4">
-              Tools
-            </h4>
+            <h4 className="text-[#C4B39A] font-semibold text-sm uppercase tracking-wider mb-4">Tools</h4>
             <ul className="space-y-2">
               <li>
-                <Link
-                  href="/geo-audit"
-                  className="text-[#FAF8F5]/60 hover:text-[#FAF8F5] text-sm transition-colors"
-                >
+                <Link href="/geo-audit" className="text-[#FAF8F5]/60 hover:text-[#FAF8F5] text-sm transition-colors">
                   GEO Visibility Tool
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/login"
-                  className="text-[#FAF8F5]/60 hover:text-[#FAF8F5] text-sm transition-colors"
-                >
+                <Link href="/login" className="text-[#FAF8F5]/60 hover:text-[#FAF8F5] text-sm transition-colors">
                   Client Login
                 </Link>
               </li>
@@ -105,9 +83,7 @@ export function Footer() {
             <p className="text-[#FAF8F5]/40 text-sm">
               &copy; {currentYear} Featherstone Intelligence. All rights reserved.
             </p>
-            <p className="text-[#FAF8F5]/40 text-sm">
-              Napa Valley, California
-            </p>
+            <p className="text-[#FAF8F5]/40 text-sm">Napa Valley, California</p>
           </div>
         </div>
       </div>

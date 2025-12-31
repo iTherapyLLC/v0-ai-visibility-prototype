@@ -25,6 +25,13 @@ export const metadata: Metadata = {
     "Invisible Intelligence. Unforgettable Hospitality. We help premium wineries become the answer when AI recommends where to go next.",
   generator: "v0.app",
   metadataBase: new URL("https://v0-ai-visibility-prototype.vercel.app"),
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    apple: "/apple-icon.png",
+  },
   openGraph: {
     title: "Featherstone Intelligence | AI Visibility for Wine Country",
     description:
