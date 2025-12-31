@@ -62,7 +62,12 @@ export function InteractiveText({
     })
   }, [])
 
-  const characters = children.split("")
+  const text = children ?? ""
+  const characters = text.split("")
+
+  if (!text) {
+    return <Component className={className} />
+  }
 
   return (
     <Component ref={containerRef as any} className={`${className} cursor-default select-none`}>

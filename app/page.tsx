@@ -113,20 +113,19 @@ export default function HomePage() {
         </div>
 
         <div className="relative z-10 text-center px-6 py-20 mt-16">
-          <div className="mb-8">
-            <div className="inline-block animate-float">
-              <Image
-                src="/images/featherstone-logo.png"
-                alt="Featherstone Intelligence"
-                width={120}
-                height={120}
-                className="mx-auto drop-shadow-lg"
-              />
-            </div>
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <Image
+              src="/images/featherstone-watermark.png"
+              alt=""
+              width={600}
+              height={600}
+              className="opacity-[0.07] select-none"
+              priority
+            />
           </div>
 
           {/* Tagline */}
-          <p className="text-[#B87333] text-lg md:text-xl font-medium tracking-widest uppercase mb-6">
+          <p className="relative text-[#B87333] text-lg md:text-xl font-medium tracking-widest uppercase mb-6">
             Featherstone Intelligence
           </p>
 
@@ -178,31 +177,58 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-[#2C2C2C]/20 rounded-full flex justify-center pt-2">
-            <div className="w-1.5 h-3 bg-[#B87333] rounded-full animate-pulse" />
-          </div>
-        </div>
       </section>
 
-      <section className="py-24 px-6 bg-gradient-to-b from-[#FAF8F5] to-white" ref={problemFade.ref}>
-        <div
-          className="max-w-6xl mx-auto text-center"
-          style={{
-            opacity: problemFade.isVisible ? 1 : 0,
-            transform: problemFade.isVisible ? "translateY(0)" : "translateY(20px)",
-            transition: "all 0.8s ease-out",
-          }}
-        >
-          <p className="text-[#B87333] font-medium tracking-widest uppercase mb-4">The Challenge</p>
-          <h2 className="text-3xl md:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
-            <InteractiveText glowColor="#B87333">AI Is Changing How Guests Find You</InteractiveText>
-          </h2>
-          <p className="text-xl text-[#2C2C2C]/70 max-w-3xl mx-auto">
-            When travelers ask ChatGPT or Perplexity for winery recommendations, is your brand part of the conversation?
-          </p>
+      {/* Problem Section */}
+      <section className="py-20 px-6 bg-gradient-to-b from-[#FAF8F5] to-white" ref={problemFade.ref}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <InteractiveText
+              text="AI Is Changing How Guests Find You"
+              className="text-3xl md:text-4xl font-bold text-[#2C2C2C] mb-4"
+            />
+            <p className="text-lg text-[#2C2C2C]/70 max-w-2xl mx-auto">
+              The hospitality discovery landscape is shifting. Is your brand visible where it matters most?
+            </p>
+          </div>
+
+          <div className="flex flex-col md:flex-row gap-6 items-stretch">
+            <Card className="flex-1 bg-[#FAF8F5] border-0 shadow-lg hover:shadow-xl hover:shadow-[#B87333]/10 hover:-translate-y-2 transition-all duration-300 group">
+              <CardContent className="p-6 text-center h-full flex flex-col">
+                <div className="w-12 h-12 bg-[#B87333]/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-[#B87333]/20 group-hover:scale-110 transition-all duration-300">
+                  <Brain className="w-6 h-6 text-[#B87333]" />
+                </div>
+                <h3 className="text-lg font-bold text-[#2C2C2C] mb-2">AI-First Discovery</h3>
+                <p className="text-sm text-[#2C2C2C]/70 flex-1">
+                  40% of travelers now use AI assistants to plan trips. Traditional SEO alone won't reach them.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="flex-1 bg-[#FAF8F5] border-0 shadow-lg hover:shadow-xl hover:shadow-[#B87333]/10 hover:-translate-y-2 transition-all duration-300 group">
+              <CardContent className="p-6 text-center h-full flex flex-col">
+                <div className="w-12 h-12 bg-[#B87333]/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-[#B87333]/20 group-hover:scale-110 transition-all duration-300">
+                  <Target className="w-6 h-6 text-[#B87333]" />
+                </div>
+                <h3 className="text-lg font-bold text-[#2C2C2C] mb-2">Invisible Brands Lose</h3>
+                <p className="text-sm text-[#2C2C2C]/70 flex-1">
+                  If AI doesn't know your story, it can't recommend you. Your competitors are already optimizing.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="flex-1 bg-[#FAF8F5] border-0 shadow-lg hover:shadow-xl hover:shadow-[#B87333]/10 hover:-translate-y-2 transition-all duration-300 group">
+              <CardContent className="p-6 text-center h-full flex flex-col">
+                <div className="w-12 h-12 bg-[#B87333]/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-[#B87333]/20 group-hover:scale-110 transition-all duration-300">
+                  <TrendingUp className="w-6 h-6 text-[#B87333]" />
+                </div>
+                <h3 className="text-lg font-bold text-[#2C2C2C] mb-2">The Gap Is Growing</h3>
+                <p className="text-sm text-[#2C2C2C]/70 flex-1">
+                  Every month you wait, competitors build stronger AI presence. The time to act is now.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
