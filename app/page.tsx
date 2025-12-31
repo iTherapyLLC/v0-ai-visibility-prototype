@@ -129,12 +129,10 @@ export default function HomePage() {
             Featherstone Intelligence
           </p>
 
-          <h1 className="text-[1.75rem] sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-bold text-[#2C2C2C] leading-tight mb-6">
-            <span className="whitespace-nowrap">
-              <InteractiveText glowColor="#B87333">Invisible Intelligence.</InteractiveText>
-            </span>
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-[#2C2C2C] leading-tight mb-6">
+            <InteractiveText glowColor="#B87333">Invisible Intelligence.</InteractiveText>
             <br />
-            <span className="whitespace-nowrap text-[#B87333]">
+            <span className="text-[#B87333]">
               <InteractiveText glowColor="#C5AA7D">Unforgettable Hospitality.</InteractiveText>
             </span>
           </h1>
@@ -409,19 +407,12 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-[#B87333]/10 to-transparent" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Image
-                    src="/images/featherstone-logo.png"
+                    src="/images/featherstone-feather-and-stone-transparent.png"
                     alt="Featherstone Intelligence"
                     width={200}
                     height={200}
-                    className="opacity-20"
+                    className="object-contain"
                   />
-                </div>
-                <div className="absolute bottom-8 left-8 right-8">
-                  <blockquote className="text-[#2C2C2C] text-lg italic">
-                    "The hospitality industry is at an inflection point. Those who understand AI-driven discovery will
-                    thrive. Those who don't will wonder where their guests went."
-                  </blockquote>
-                  <p className="text-[#B87333] mt-4 font-medium">— Featherstone Intelligence</p>
                 </div>
               </div>
             </div>
