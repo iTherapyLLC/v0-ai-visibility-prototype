@@ -129,10 +129,12 @@ export default function HomePage() {
             Featherstone Intelligence
           </p>
 
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-[#2C2C2C] leading-tight mb-6">
-            <InteractiveText glowColor="#B87333">Invisible Intelligence.</InteractiveText>
+          <h1 className="text-[1.75rem] sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-bold text-[#2C2C2C] leading-tight mb-6">
+            <span className="whitespace-nowrap">
+              <InteractiveText glowColor="#B87333">Invisible Intelligence.</InteractiveText>
+            </span>
             <br />
-            <span className="text-[#B87333]">
+            <span className="whitespace-nowrap text-[#B87333]">
               <InteractiveText glowColor="#C5AA7D">Unforgettable Hospitality.</InteractiveText>
             </span>
           </h1>
