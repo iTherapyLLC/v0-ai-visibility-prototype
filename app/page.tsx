@@ -506,8 +506,8 @@ export default function HomePage() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-24 px-6 bg-white">
-        <div className="max-w-4xl mx-auto">
+      <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8 bg-white overflow-hidden">
+        <div className="max-w-4xl mx-auto w-full">
           <div className="text-center mb-12">
             <p className="text-[#B87333] font-medium tracking-widest uppercase mb-4">Get Started</p>
             <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
@@ -520,9 +520,9 @@ export default function HomePage() {
             </p>
           </div>
 
-          <Card className="bg-[#FAF8F5] border-0 shadow-xl hover:shadow-2xl transition-shadow duration-300">
-            <CardContent className="p-8 md:p-12">
-              <div className="grid md:grid-cols-2 gap-8">
+          <Card className="bg-[#FAF8F5] border-0 shadow-xl hover:shadow-2xl transition-shadow duration-300 w-full">
+            <CardContent className="p-4 sm:p-6 md:p-8 lg:p-12">
+              <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
                 <div>
                   <h3 className="text-xl font-bold text-[#2C2C2C] mb-4">Contact Information</h3>
                   <div className="space-y-4">
@@ -530,9 +530,9 @@ export default function HomePage() {
                       <div className="w-10 h-10 bg-[#B87333]/10 rounded-lg flex items-center justify-center group-hover:bg-[#B87333]/20 group-hover:scale-110 transition-all duration-300">
                         <MessageSquare className="w-5 h-5 text-[#B87333]" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="text-sm text-[#2C2C2C]/60">Email</p>
-                        <p className="font-medium text-[#2C2C2C]">hello@featherstoneintelligence.com</p>
+                        <p className="font-medium text-[#2C2C2C] break-words text-sm sm:text-base">hello@featherstoneintelligence.com</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 group">
@@ -549,7 +549,7 @@ export default function HomePage() {
                 <div className="flex flex-col justify-center">
                   <Button
                     size="lg"
-                    className="w-full bg-[#B87333] hover:bg-[#A66329] text-white py-6 text-lg font-semibold hover:shadow-[0_0_20px_rgba(184,115,51,0.3)] transition-all duration-300"
+                    className="w-full bg-[#B87333] hover:bg-[#A66329] text-white py-4 sm:py-6 text-base sm:text-lg font-semibold hover:shadow-[0_0_20px_rgba(184,115,51,0.3)] transition-all duration-300"
                   >
                     Schedule Your Consultation
                   </Button>
