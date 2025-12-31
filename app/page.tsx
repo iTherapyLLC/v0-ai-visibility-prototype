@@ -80,6 +80,7 @@ export default function HomePage() {
   const servicesFade = useFadeInOnScroll()
   const processFade = useFadeInOnScroll()
   const aboutFade = useFadeInOnScroll()
+  const cardsFade = useFadeInOnScroll() // Added for AI Is Changing Section
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -201,10 +202,77 @@ export default function HomePage() {
 
           <div className="text-center mb-12">
             <InteractiveText
-              className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[#2C2C2C] mb-4 whitespace-nowrap"
-            >
-              AI Is Changing How Guests Find You
-            </InteractiveText>
+              text="AI Is Changing How Guests Find You"
+              className="text-3xl md:text-4xl font-bold text-[#2C2C2C] mb-4"
+            />
+            <p className="text-lg text-[#2C2C2C]/70 max-w-2xl mx-auto">
+              The hospitality discovery landscape is shifting. Is your brand visible where it matters most?
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="bg-[#FAF8F5] border-0 shadow-lg hover:shadow-xl hover:shadow-[#B87333]/10 hover:-translate-y-2 transition-all duration-300 group h-full">
+              <CardContent className="p-6 text-center h-full flex flex-col items-center">
+                <div className="w-12 h-12 bg-[#B87333]/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-[#B87333]/20 group-hover:scale-110 transition-all duration-300 flex-shrink-0">
+                  <Brain className="w-6 h-6 text-[#B87333]" />
+                </div>
+                <h3 className="text-lg font-bold text-[#2C2C2C] mb-2">AI-First Discovery</h3>
+                <p className="text-sm text-[#2C2C2C]/70 flex-grow">
+                  40% of travelers now use AI assistants to plan trips. Traditional SEO alone won't reach them.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-[#FAF8F5] border-0 shadow-lg hover:shadow-xl hover:shadow-[#B87333]/10 hover:-translate-y-2 transition-all duration-300 group h-full">
+              <CardContent className="p-6 text-center h-full flex flex-col items-center">
+                <div className="w-12 h-12 bg-[#B87333]/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-[#B87333]/20 group-hover:scale-110 transition-all duration-300 flex-shrink-0">
+                  <Target className="w-6 h-6 text-[#B87333]" />
+                </div>
+                <h3 className="text-lg font-bold text-[#2C2C2C] mb-2">Invisible Brands Lose</h3>
+                <p className="text-sm text-[#2C2C2C]/70 flex-grow">
+                  If AI doesn't know your story, it can't recommend you. Your competitors are already optimizing.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-[#FAF8F5] border-0 shadow-lg hover:shadow-xl hover:shadow-[#B87333]/10 hover:-translate-y-2 transition-all duration-300 group h-full">
+              <CardContent className="p-6 text-center h-full flex flex-col items-center">
+                <div className="w-12 h-12 bg-[#B87333]/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-[#B87333]/20 group-hover:scale-110 transition-all duration-300 flex-shrink-0">
+                  <TrendingUp className="w-6 h-6 text-[#B87333]" />
+                </div>
+                <h3 className="text-lg font-bold text-[#2C2C2C] mb-2">The Gap Is Growing</h3>
+                <p className="text-sm text-[#2C2C2C]/70 flex-grow">
+                  Every month you wait, competitors build stronger AI presence. The time to act is now.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* AI Is Changing Section */}
+      <section id="solutions" className="py-24 px-6 bg-white" ref={cardsFade.ref}>
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-16 relative h-[400px] rounded-3xl overflow-hidden shadow-2xl group">
+            <Image
+              src="/images/napa-winery-vineyard-sunset.jpg"
+              alt="Napa Valley Winery at Sunset"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-700"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/60 via-transparent to-transparent" />
+            <div className="absolute bottom-8 left-8 right-8 text-white">
+              <p className="text-sm font-medium tracking-widest uppercase mb-2 opacity-90">The New Reality</p>
+              <h3 className="text-3xl md:text-4xl font-serif font-bold">Your Brand Deserves to Be Seen</h3>
+            </div>
+          </div>
+
+          <div className="text-center mb-12">
+            <InteractiveText
+              text="AI Is Changing How Guests Find You"
+              className="text-3xl md:text-4xl font-bold text-[#2C2C2C] mb-4"
+            />
             <p className="text-lg text-[#2C2C2C]/70 max-w-2xl mx-auto">
               The hospitality discovery landscape is shifting. Is your brand visible where it matters most?
             </p>
@@ -261,10 +329,8 @@ export default function HomePage() {
         >
           <div className="text-center mb-16">
             <p className="text-[#B87333] font-medium tracking-widest uppercase mb-4">Our Services</p>
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
-              <span className="whitespace-nowrap">
-                <InteractiveText glowColor="#B87333">Generative Engine Optimization</InteractiveText>
-              </span>
+            <h2 className="text-3xl md:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
+              <InteractiveText glowColor="#B87333">Generative Engine Optimization</InteractiveText>
             </h2>
             <p className="text-xl text-[#2C2C2C]/70 max-w-3xl mx-auto">
               We don't just optimize for search engines. We optimize for the AI systems that are becoming the new
@@ -341,7 +407,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-24 px-6 bg-[#FAF8F5]" ref={processFade.ref}>
+      {/* Process Section */}
+      <section id="process" className="py-24 px-6 bg-[#FAF8F5]" ref={processFade.ref}>
         <div
           className="max-w-6xl mx-auto"
           style={{
@@ -352,10 +419,8 @@ export default function HomePage() {
         >
           <div className="text-center mb-16">
             <p className="text-[#B87333] font-medium tracking-widest uppercase mb-4">The Process</p>
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
-              <span className="whitespace-nowrap">
-                <InteractiveText glowColor="#B87333">From Invisible to Unforgettable</InteractiveText>
-              </span>
+            <h2 className="text-3xl md:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
+              <InteractiveText glowColor="#B87333">From Invisible to Unforgettable</InteractiveText>
             </h2>
             <p className="text-xl text-[#2C2C2C]/70 max-w-3xl mx-auto">
               A proven methodology that delivers measurable improvements in AI visibility within 30-60 days.
@@ -441,7 +506,7 @@ export default function HomePage() {
               <p className="text-[#B87333] font-medium tracking-widest uppercase mb-4">About Us</p>
               <InteractiveText
                 as="h2"
-                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold text-[#2C2C2C] mb-6 whitespace-nowrap"
+                className="text-3xl md:text-5xl font-serif font-bold text-[#2C2C2C] mb-6"
                 glowColor="#B87333"
               >
                 Wine Country Experts, AI Pioneers
@@ -485,10 +550,8 @@ export default function HomePage() {
 
       <section className="py-24 px-6 bg-[#2C2C2C] text-white text-center">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold text-white mb-6">
-            <span className="whitespace-nowrap">
-              <InteractiveText glowColor="#C5AA7D">See Your AI Visibility Score</InteractiveText>
-            </span>
+          <h2 className="text-3xl md:text-5xl font-serif font-bold text-white mb-6">
+            <InteractiveText glowColor="#C5AA7D">See Your AI Visibility Score</InteractiveText>
           </h2>
           <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
             Run a free GEO visibility audit and discover how AI assistants currently perceive and recommend your winery.
@@ -506,23 +569,21 @@ export default function HomePage() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8 bg-white overflow-hidden">
-        <div className="max-w-4xl mx-auto w-full">
+      <section id="contact" className="py-24 px-6 bg-white">
+        <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-[#B87333] font-medium tracking-widest uppercase mb-4">Get Started</p>
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
-              <span className="whitespace-nowrap">
-                <InteractiveText glowColor="#B87333">Ready to Be Discovered?</InteractiveText>
-              </span>
+            <h2 className="text-3xl md:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
+              <InteractiveText glowColor="#B87333">Ready to Be Discovered?</InteractiveText>
             </h2>
             <p className="text-xl text-[#2C2C2C]/70 max-w-2xl mx-auto">
               Schedule a complimentary consultation to discuss your AI visibility strategy.
             </p>
           </div>
 
-          <Card className="bg-[#FAF8F5] border-0 shadow-xl hover:shadow-2xl transition-shadow duration-300 w-full">
-            <CardContent className="p-4 sm:p-6 md:p-8 lg:p-12">
-              <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
+          <Card className="bg-[#FAF8F5] border-0 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+            <CardContent className="p-8 md:p-12">
+              <div className="grid md:grid-cols-2 gap-8">
                 <div>
                   <h3 className="text-xl font-bold text-[#2C2C2C] mb-4">Contact Information</h3>
                   <div className="space-y-4">
@@ -530,9 +591,9 @@ export default function HomePage() {
                       <div className="w-10 h-10 bg-[#B87333]/10 rounded-lg flex items-center justify-center group-hover:bg-[#B87333]/20 group-hover:scale-110 transition-all duration-300">
                         <MessageSquare className="w-5 h-5 text-[#B87333]" />
                       </div>
-                      <div className="min-w-0">
+                      <div>
                         <p className="text-sm text-[#2C2C2C]/60">Email</p>
-                        <p className="font-medium text-[#2C2C2C] break-words text-sm sm:text-base">hello@featherstoneintelligence.com</p>
+                        <p className="font-medium text-[#2C2C2C]">hello@featherstoneintelligence.com</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 group">
@@ -549,7 +610,7 @@ export default function HomePage() {
                 <div className="flex flex-col justify-center">
                   <Button
                     size="lg"
-                    className="w-full bg-[#B87333] hover:bg-[#A66329] text-white py-4 sm:py-6 text-base sm:text-lg font-semibold hover:shadow-[0_0_20px_rgba(184,115,51,0.3)] transition-all duration-300"
+                    className="w-full bg-[#B87333] hover:bg-[#A66329] text-white py-6 text-lg font-semibold hover:shadow-[0_0_20px_rgba(184,115,51,0.3)] transition-all duration-300"
                   >
                     Schedule Your Consultation
                   </Button>
