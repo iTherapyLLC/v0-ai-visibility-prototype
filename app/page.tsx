@@ -129,10 +129,11 @@ export default function HomePage() {
             Featherstone Intelligence
           </p>
 
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-[#2C2C2C] leading-tight mb-6">
-            <InteractiveText glowColor="#B87333">Invisible Intelligence.</InteractiveText>
-            <br />
-            <span className="text-[#B87333]">
+          <h1 className="text-[1.6rem] xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-bold text-[#2C2C2C] leading-tight mb-6">
+            <span className="block whitespace-nowrap">
+              <InteractiveText glowColor="#B87333">Invisible Intelligence.</InteractiveText>
+            </span>
+            <span className="block whitespace-nowrap text-[#B87333]">
               <InteractiveText glowColor="#C5AA7D">Unforgettable Hospitality.</InteractiveText>
             </span>
           </h1>
@@ -403,15 +404,15 @@ export default function HomePage() {
               </div>
             </div>
             <div className="relative">
-              <div className="aspect-square bg-gradient-to-br from-[#F5EDE3] to-[#EDE4D7] rounded-2xl overflow-hidden shadow-xl">
+              <div className="aspect-square bg-[#FAF8F5] rounded-2xl overflow-hidden shadow-xl">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#B87333]/10 to-transparent" />
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center bg-[#FAF8F5]">
                   <Image
-                    src="/images/featherstone-feather-and-stone-transparent.png"
+                    src="/images/featherstone-logo.png"
                     alt="Featherstone Intelligence"
                     width={200}
                     height={200}
-                    className="object-contain"
+                    className="object-contain opacity-40"
                   />
                 </div>
               </div>
