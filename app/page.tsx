@@ -251,27 +251,10 @@ export default function HomePage() {
       </section>
 
       {/* AI Is Changing Section */}
-      <section id="solutions" className="py-24 px-6 bg-white" ref={cardsFade.ref}>
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-16 relative h-[400px] rounded-3xl overflow-hidden shadow-2xl group">
-            <Image
-              src="/images/napa-winery-vineyard-sunset.jpg"
-              alt="Napa Valley Winery at Sunset"
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-700"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/60 via-transparent to-transparent" />
-            <div className="absolute bottom-8 left-8 right-8 text-white">
-              <p className="text-sm font-medium tracking-widest uppercase mb-2 opacity-90">The New Reality</p>
-              <h3 className="text-3xl md:text-4xl font-serif font-bold">Your Brand Deserves to Be Seen</h3>
-            </div>
-          </div>
+      
 
-        </div>
-      </section>
-
-      <section className="py-24 px-6 bg-white" ref={servicesFade.ref}>
+      {/* Services Section */}
+      <section className="py-24 px-6 bg-white" id="services" ref={servicesFade.ref}>
         <div
           className="max-w-6xl mx-auto"
           style={{
@@ -280,6 +263,22 @@ export default function HomePage() {
             transition: "all 0.8s ease-out",
           }}
         >
+          <div className="relative h-[400px] rounded-3xl overflow-hidden shadow-2xl mb-16">
+            <Image
+              src="/images/ai-discovery-hospitality.jpg"
+              alt="AI Discovery in Hospitality"
+              fill
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#2C2C2C]/70 via-[#30594B]/50 to-transparent" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+              <p className="text-[#C5AA7D] font-medium tracking-widest uppercase mb-4">THE AI ADVANTAGE</p>
+              <h2 className="text-4xl md:text-6xl font-serif font-bold text-white mb-4 drop-shadow-lg">
+                Intelligence That Works Behind the Scenes
+              </h2>
+            </div>
+          </div>
+
           <div className="text-center mb-16">
             <p className="text-[#B87333] font-medium tracking-widest uppercase mb-4">Our Services</p>
             <h2 className="text-3xl md:text-5xl font-serif font-bold text-[#2C2C2C] mb-6">
@@ -319,7 +318,6 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-
         </div>
       </section>
 
@@ -350,7 +348,7 @@ export default function HomePage() {
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#2C2C2C]/70 via-[#2C2C2C]/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#C5AA7D] to-transparent" />
             <div className="absolute inset-0 flex items-center">
               <div className="px-12 text-white max-w-2xl">
                 <p className="text-sm font-medium tracking-widest uppercase mb-3 opacity-90">Our Approach</p>
