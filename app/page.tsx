@@ -367,43 +367,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="bg-[#FAF8F5] border-0 shadow-lg hover:shadow-xl hover:shadow-[#B87333]/10 hover:-translate-y-2 transition-all duration-300 group h-full">
-              <CardContent className="p-8 text-center h-full flex flex-col items-center">
-                <div className="w-16 h-16 bg-[#B87333]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#B87333]/20 group-hover:scale-110 transition-all duration-300 flex-shrink-0">
-                  <Brain className="w-8 h-8 text-[#B87333]" />
-                </div>
-                <h3 className="text-xl font-bold text-[#2C2C2C] mb-3">AI-First Discovery</h3>
-                <p className="text-[#2C2C2C]/70 flex-grow">
-                  40% of travelers now use AI assistants to plan trips. Traditional SEO alone won't reach them.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-[#FAF8F5] border-0 shadow-lg hover:shadow-xl hover:shadow-[#B87333]/10 hover:-translate-y-2 transition-all duration-300 group h-full">
-              <CardContent className="p-8 text-center h-full flex flex-col items-center">
-                <div className="w-16 h-16 bg-[#B87333]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#B87333]/20 group-hover:scale-110 transition-all duration-300 flex-shrink-0">
-                  <Target className="w-8 h-8 text-[#B87333]" />
-                </div>
-                <h3 className="text-xl font-bold text-[#2C2C2C] mb-3">Invisible Brands Lose</h3>
-                <p className="text-[#2C2C2C]/70 flex-grow">
-                  If AI doesn't know your story, it can't recommend you. Your competitors are already optimizing.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-[#FAF8F5] border-0 shadow-lg hover:shadow-xl hover:shadow-[#B87333]/10 hover:-translate-y-2 transition-all duration-300 group h-full">
-              <CardContent className="p-8 text-center h-full flex flex-col items-center">
-                <div className="w-16 h-16 bg-[#B87333]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#B87333]/20 group-hover:scale-110 transition-all duration-300 flex-shrink-0">
-                  <TrendingUp className="w-8 h-8 text-[#B87333]" />
-                </div>
-                <h3 className="text-xl font-bold text-[#2C2C2C] mb-3">The Gap Is Growing</h3>
-                <p className="text-[#2C2C2C]/70 flex-grow">
-                  Every month you wait, competitors build stronger AI presence. The time to act is now.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </section>
 
